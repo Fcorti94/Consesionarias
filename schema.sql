@@ -1,6 +1,6 @@
 -- ============================================================
 -- Template de Tienda — Database Schema
--- Ejecutar en el SQL Editor de Supabase
+-- Ejecutar en el SQL Editor de Supabase 
 -- ============================================================
 
 -- ============================================================
