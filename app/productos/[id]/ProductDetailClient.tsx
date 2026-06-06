@@ -257,20 +257,6 @@ export default function ProductDetailClient({
               </div>
             )}
 
-            {/* Trust badges */}
-            <div className="grid grid-cols-2 gap-2 pt-4 border-t border-slate-100">
-              {[
-                { icon: '🚚', text: `Envío gratis +${fmt(shippingFreeFrom)}` },
-                { icon: '🛡️', text: 'Productos originales' },
-                { icon: '🔄', text: '30 días de garantía' },
-                { icon: '💳', text: `${installments} cuotas sin interés` },
-              ].map((b, i) => (
-                <div key={i} className="flex items-center gap-2 text-xs text-slate-500">
-                  <span className="text-base">{b.icon}</span>
-                  {b.text}
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>

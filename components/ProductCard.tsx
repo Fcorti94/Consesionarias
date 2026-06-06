@@ -36,9 +36,9 @@ export default function ProductCard({
       <div className="product-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 flex flex-col group">
 
         {/* Image */}
-        <div
-          className="relative aspect-square overflow-hidden cursor-pointer bg-slate-50"
-          onClick={() => setModalOpen(true)}
+        <Link
+          href={`/productos/${product.id}`}
+          className="relative aspect-square overflow-hidden bg-slate-50 block"
         >
           {product.image_url ? (
             <img
@@ -61,22 +61,15 @@ export default function ProductCard({
           )}
 
           {/* Hover overlay */}
-          <div className="product-quick-add absolute inset-0 bg-[var(--navy)]/60 flex items-center justify-center gap-2 p-3">
-            <Link
-              href={`/productos/${product.id}`}
-              onClick={(e) => e.stopPropagation()}
-              className="flex-1 bg-white text-slate-900 font-semibold text-xs py-2.5 rounded-xl hover:bg-slate-100 transition text-center"
-            >
-              Ver detalle
-            </Link>
-            {product.stock > 0 && (
-              showCart ? (
+          {product.stock > 0 && (
+            <div className="product-quick-add absolute inset-0 bg-[var(--navy)]/60 flex items-center justify-center p-3">
+              {showCart ? (
                 <button
-                  onClick={(e) => { e.stopPropagation(); setModalOpen(true) }}
-                  className="flex-1 text-white font-semibold text-xs py-2.5 rounded-xl transition text-center hover:opacity-90"
+                  onClick={(e) => { e.preventDefault(); setModalOpen(true) }}
+                  className="w-full text-white font-semibold text-xs py-2.5 rounded-xl transition text-center hover:opacity-90"
                   style={{ backgroundColor: 'var(--primary)' }}
                 >
-                  + Agregar
+                  + Agregar al carrito
                 </button>
               ) : (
                 <a
@@ -84,13 +77,13 @@ export default function ProductCard({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="flex-1 bg-green-600 text-white font-semibold text-xs py-2.5 rounded-xl hover:bg-green-700 transition text-center"
+                  className="w-full bg-green-600 text-white font-semibold text-xs py-2.5 rounded-xl hover:bg-green-700 transition text-center block"
                 >
-                  Consultar
+                  Consultar por WhatsApp
                 </a>
-              )
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
@@ -119,19 +112,19 @@ export default function ProductCard({
               </span>
             </div>
           )}
-        </div>
+        </Link>
 
         {/* Info */}
         <div className="p-3.5 flex flex-col flex-1">
           <p className="text-[11px] font-semibold uppercase tracking-wider mb-1 capitalize line-clamp-1" style={{ color: 'var(--primary)' }}>
             {(product.categories?.length ? product.categories : [product.category]).join(' · ')}
           </p>
-          <h3
-            className="font-semibold text-slate-800 text-sm leading-snug line-clamp-2 cursor-pointer hover:opacity-70 transition mb-2"
-            onClick={() => setModalOpen(true)}
+          <Link
+            href={`/productos/${product.id}`}
+            className="font-semibold text-slate-800 text-sm leading-snug line-clamp-2 hover:opacity-70 transition mb-2 block"
           >
             {product.name}
-          </h3>
+          </Link>
 
           <div className="mt-auto">
             {product.original_price && (
