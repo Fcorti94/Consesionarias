@@ -234,6 +234,7 @@ export default async function HomePage() {
                   key={p.id}
                   product={p}
                   showLowStockBadge={config.show_low_stock_badge}
+                  showQuantitySelector={config.show_quantity_selector}
                   whatsapp={config.whatsapp}
                 />
               ))}

@@ -8,10 +8,12 @@ import ProductModal from './ProductModal'
 export default function ProductCard({
   product,
   showLowStockBadge = true,
+  showQuantitySelector = true,
   whatsapp = '',
 }: {
   product: Product
   showLowStockBadge?: boolean
+  showQuantitySelector?: boolean
   whatsapp?: string
 }) {
   const [modalOpen, setModalOpen] = useState(false)
@@ -153,6 +155,7 @@ export default function ProductCard({
         onClose={() => setModalOpen(false)}
         whatsapp={whatsapp}
         showLowStockBadge={showLowStockBadge}
+        showQuantitySelector={showQuantitySelector}
       />
     </>
   )

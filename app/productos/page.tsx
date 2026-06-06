@@ -4,6 +4,7 @@ import { getSiteConfig } from '@/lib/config-actions'
 import HeaderWrapper from '@/components/HeaderWrapper'
 import ProductCard from '@/components/ProductCard'
 import Filters from '@/components/Filters'
+import ActiveFilters from '@/components/ActiveFilters'
 import { DEFAULT_CATEGORIES, DEFAULT_BRANDS } from '@/lib/types'
 import type { Product } from '@/lib/types'
 
@@ -103,6 +104,9 @@ export default async function ProductsPage({
           </div>
 
           <div className="flex-1 min-w-0 min-h-[500px]">
+            <Suspense>
+              <ActiveFilters categories={categories} brands={brands} />
+            </Suspense>
             {products.length === 0 ? (
               <div className="text-center py-24">
                 <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -128,6 +132,7 @@ export default async function ProductsPage({
                     key={p.id}
                     product={p}
                     showLowStockBadge={config.show_low_stock_badge}
+                    showQuantitySelector={config.show_quantity_selector}
                     whatsapp={config.whatsapp}
                   />
                 ))}
