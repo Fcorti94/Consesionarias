@@ -18,3 +18,15 @@ export async function trackWhatsappClick(
     // Silently fail — never block user navigation
   }
 }
+
+export async function trackProductView(productId: string, productName: string) {
+  try {
+    const supabase = await createClient()
+    await supabase.from('product_views').insert({
+      product_id: productId,
+      product_name: productName,
+    })
+  } catch {
+    // Silently fail
+  }
+}

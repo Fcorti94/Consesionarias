@@ -223,7 +223,26 @@ CREATE POLICY "authenticated_read_whatsapp_clicks" ON whatsapp_clicks
 
 
 -- ============================================================
--- 7. STORAGE
+-- 7. PRODUCT VIEWS (tracking de visitas a páginas de detalle)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS product_views (
+  id           UUID    DEFAULT gen_random_uuid() PRIMARY KEY,
+  product_id   UUID    REFERENCES products(id) ON DELETE SET NULL,
+  product_name TEXT    NOT NULL DEFAULT '',
+  created_at   TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE product_views ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "public_insert_product_views" ON product_views
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "authenticated_read_product_views" ON product_views
+  FOR SELECT TO authenticated USING (true);
+
+
+-- ============================================================
+-- 8. STORAGE
 -- Ejecutar esto también (o crear los buckets desde el dashboard)
 -- ============================================================
 

@@ -64,6 +64,30 @@ export default async function AnalyticsPage() {
     .sort(([, a], [, b]) => b - a)
     .slice(0, 6)
 
+  // Product views
+  const { data: rawViews, error: viewsError } = await supabase
+    .from('product_views')
+    .select('product_name, created_at')
+    .order('created_at', { ascending: false })
+
+  const views = rawViews ?? []
+  const viewsTableReady = !viewsError
+
+  const todayViews  = views.filter(v => new Date(v.created_at) >= todayStart).length
+  const weekViews   = views.filter(v => new Date(v.created_at) >= weekStart).length
+  const monthViews  = views.filter(v => new Date(v.created_at) >= monthStart).length
+  const totalViews  = views.length
+
+  const viewsByProduct = views.reduce((acc, v) => {
+    const k = v.product_name || '(sin nombre)'
+    acc[k] = (acc[k] ?? 0) + 1
+    return acc
+  }, {} as Record<string, number>)
+
+  const topViewedProducts = Object.entries(viewsByProduct)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 8)
+
   // Orders (only if show_cart)
   const { data: ordersRaw } = config.show_cart
     ? await supabase.from('orders').select('status, total, created_at')
@@ -155,6 +179,66 @@ export default async function AnalyticsPage() {
                     ))}
                   </ol>
                 </div>
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
+      {/* ── Productos más visitados ── */}
+      <section className="mb-10">
+        <h2 className="text-base font-bold text-slate-700 mb-4 flex items-center gap-2">
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-violet-100">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </span>
+          Productos más visitados
+        </h2>
+
+        {!viewsTableReady ? (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-amber-800 text-sm">
+            <p className="font-semibold mb-1">Tabla no configurada</p>
+            <p>Ejecutá el SQL de <code className="bg-amber-100 px-1 rounded">schema.sql</code> en Supabase para habilitar el tracking de visitas.</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+              <StatCard label="Hoy" value={todayViews} />
+              <StatCard label="Esta semana" value={weekViews} />
+              <StatCard label="Este mes" value={monthViews} />
+              <StatCard label="Total histórico" value={totalViews} />
+            </div>
+
+            {totalViews === 0 ? (
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center text-slate-400">
+                <svg className="mx-auto mb-3 opacity-30" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <p className="text-sm">Todavía no hay visitas registradas.</p>
+                <p className="text-xs mt-1">Se registran cuando alguien abre la página de detalle de un producto.</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+                <ol className="divide-y divide-slate-50">
+                  {topViewedProducts.map(([name, count], i) => {
+                    const pct = Math.round((count / totalViews) * 100)
+                    return (
+                      <li key={name} className="flex items-center gap-4 py-3">
+                        <span className="text-slate-400 font-bold w-6 text-right shrink-0 text-sm">{i + 1}</span>
+                        <span className="flex-1 text-slate-700 text-sm truncate">{name}</span>
+                        <div className="hidden sm:flex w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden shrink-0">
+                          <div className="h-full rounded-full bg-violet-400" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="font-semibold text-slate-800 text-sm shrink-0 w-20 text-right">
+                          {count} <span className="text-slate-400 font-normal text-xs">({pct}%)</span>
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ol>
               </div>
             )}
           </>

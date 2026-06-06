@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { normalizeVariant } from '@/lib/types'
 import type { Product, ProductVariant } from '@/lib/types'
 import { useCart } from '@/components/CartContext'
-import { trackWhatsappClick } from '@/lib/analytics-actions'
+import { trackWhatsappClick, trackProductView } from '@/lib/analytics-actions'
 
 interface Props {
   product: Product
@@ -29,6 +29,10 @@ export default function ProductDetailClient({
   )
   const [qty, setQty] = useState(1)
   const [added, setAdded] = useState(false)
+
+  useEffect(() => {
+    trackProductView(product.id, product.name)
+  }, [product.id])
 
   const effectiveStock = selectedVariant ? selectedVariant.stock : product.stock
 
