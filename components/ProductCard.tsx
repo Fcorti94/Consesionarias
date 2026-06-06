@@ -61,29 +61,24 @@ export default function ProductCard({
           )}
 
           {/* Hover overlay */}
-          {product.stock > 0 && (
-            <div className="product-quick-add absolute inset-0 bg-[var(--navy)]/60 flex items-center justify-center p-3">
-              {showCart ? (
-                <button
-                  onClick={(e) => { e.preventDefault(); setModalOpen(true) }}
-                  className="w-full text-white font-semibold text-xs py-2.5 rounded-xl transition text-center hover:opacity-90"
-                  style={{ backgroundColor: 'var(--primary)' }}
-                >
-                  + Agregar al carrito
-                </button>
-              ) : (
-                <a
-                  href={waUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-full bg-green-600 text-white font-semibold text-xs py-2.5 rounded-xl hover:bg-green-700 transition text-center block"
-                >
-                  Consultar por WhatsApp
-                </a>
-              )}
-            </div>
-          )}
+          <div className="product-quick-add absolute inset-0 bg-[var(--navy)]/60 flex items-center justify-center gap-2 p-3">
+            <Link
+              href={`/productos/${product.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="flex-1 bg-white text-slate-900 font-semibold text-xs py-2.5 rounded-xl hover:bg-slate-100 transition text-center"
+            >
+              Ver detalle
+            </Link>
+            {showCart && product.stock > 0 && (
+              <button
+                onClick={(e) => { e.preventDefault(); setModalOpen(true) }}
+                className="flex-1 text-white font-semibold text-xs py-2.5 rounded-xl transition text-center hover:opacity-90"
+                style={{ backgroundColor: 'var(--primary)' }}
+              >
+                + Agregar
+              </button>
+            )}
+          </div>
 
           {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
