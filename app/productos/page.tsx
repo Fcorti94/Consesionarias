@@ -132,7 +132,7 @@ export default async function ProductsPage({
                     key={p.id}
                     product={p}
                     showLowStockBadge={config.show_low_stock_badge}
-                    showQuantitySelector={config.show_quantity_selector}
+                    showCart={config.show_cart}
                     whatsapp={config.whatsapp}
                   />
                 ))}

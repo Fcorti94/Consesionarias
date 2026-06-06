@@ -114,6 +114,7 @@ export interface SiteConfig {
   show_featured: boolean
   show_low_stock_badge: boolean
   show_quantity_selector: boolean
+  show_cart: boolean
   section_order: string[]
   updated_at: string
 }
@@ -256,6 +257,7 @@ export const DEFAULT_CONFIG: SiteConfig = {
   show_featured:          true,
   show_low_stock_badge:   true,
   show_quantity_selector: true,
+  show_cart:              true,
   section_order:    ['brands', 'promo', 'hero', 'trust_bar', 'categories', 'featured'],
   updated_at: new Date().toISOString(),
 }

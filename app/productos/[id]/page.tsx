@@ -69,7 +69,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             installments={config.installments}
             whatsapp={config.whatsapp}
             showLowStockBadge={config.show_low_stock_badge}
-            showQuantitySelector={config.show_quantity_selector}
+            showCart={config.show_cart}
           />
         </div>
       </main>

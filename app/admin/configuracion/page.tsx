@@ -113,14 +113,15 @@ export default async function ConfiguracionPage() {
           </div>
           <div className="flex items-center justify-between pt-4 border-t border-slate-100">
             <div>
-              <label htmlFor="show_quantity_selector" className="block text-sm font-medium text-slate-700 cursor-pointer">
-                Selector de cantidad
+              <label htmlFor="show_cart" className="block text-sm font-medium text-slate-700 cursor-pointer">
+                Carrito de compras
               </label>
               <p className="text-xs text-slate-400 mt-0.5">
-                Permite al visitante elegir cuántas unidades consulta. Desactivar para vehículos u objetos únicos.
+                Habilita el carrito, el selector de cantidad y el botón "Agregar al carrito".
+                Desactivado, los productos muestran "Contactar vendedor" vía WhatsApp.
               </p>
             </div>
-            <Toggle id="show_quantity_selector" name="show_quantity_selector" defaultChecked={config.show_quantity_selector} />
+            <Toggle id="show_cart" name="show_cart" defaultChecked={config.show_cart} />
           </div>
         </Section>
 

@@ -15,6 +15,7 @@ export default async function HeaderWrapper() {
       instagram={config.instagram}
       shippingFreeFrom={config.shipping_free_from}
       categories={categories}
+      showCart={config.show_cart}
     />
   )
 }

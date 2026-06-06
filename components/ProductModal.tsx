@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { normalizeVariant } from '@/lib/types'
 import type { Product, ProductVariant } from '@/lib/types'
+import { useCart } from './CartContext'
 
 interface Props {
   product: Product
@@ -10,15 +11,17 @@ interface Props {
   onClose: () => void
   whatsapp?: string
   showLowStockBadge?: boolean
-  showQuantitySelector?: boolean
+  showCart?: boolean
 }
 
 export default function ProductModal({
   product, open, onClose,
-  whatsapp = '', showLowStockBadge = true, showQuantitySelector = true,
+  whatsapp = '', showLowStockBadge = true, showCart = true,
 }: Props) {
+  const { add } = useCart()
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>()
   const [qty, setQty] = useState(1)
+  const [added, setAdded] = useState(false)
 
   const variants: ProductVariant[] = (product.variants ?? []).map(normalizeVariant)
 
@@ -26,6 +29,7 @@ export default function ProductModal({
     if (open) {
       setSelectedVariant(variants[0] ?? undefined)
       setQty(1)
+      setAdded(false)
     }
   }, [open, product])
 
@@ -53,6 +57,14 @@ export default function ProductModal({
   const waUrl = whatsapp
     ? `https://wa.me/${whatsapp.replace(/\D/g, '')}?text=${waMessage}`
     : '#'
+
+  function handleAdd() {
+    for (let i = 0; i < qty; i++) {
+      add(product, selectedVariant?.name)
+    }
+    setAdded(true)
+    setTimeout(() => { setAdded(false); onClose() }, 1500)
+  }
 
   return (
     <>
@@ -164,8 +176,8 @@ export default function ProductModal({
                 </div>
               )}
 
-              {/* Qty */}
-              {showQuantitySelector && effectiveStock > 0 && (
+              {/* Qty — only in cart mode */}
+              {showCart && effectiveStock > 0 && (
                 <div className="flex items-center gap-3 mb-4">
                   <span className="text-sm font-semibold text-slate-700">Cantidad:</span>
                   <div className="flex items-center border-2 border-slate-200 rounded-xl overflow-hidden">
@@ -180,6 +192,30 @@ export default function ProductModal({
                 <div className="w-full py-3.5 rounded-xl font-semibold text-slate-400 bg-slate-200 text-sm text-center">
                   Sin stock
                 </div>
+              ) : showCart ? (
+                <button
+                  onClick={handleAdd}
+                  className="w-full py-3.5 rounded-xl font-semibold text-white text-sm text-center flex items-center justify-center gap-2 transition hover:opacity-90"
+                  style={{ backgroundColor: added ? '#16a34a' : 'var(--primary)' }}
+                >
+                  {added ? (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      ¡Agregado al carrito!
+                    </>
+                  ) : (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <path d="M16 10a4 4 0 01-8 0"/>
+                      </svg>
+                      Agregar al carrito
+                    </>
+                  )}
+                </button>
               ) : (
                 <a
                   href={waUrl}

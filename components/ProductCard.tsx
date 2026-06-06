@@ -8,12 +8,12 @@ import ProductModal from './ProductModal'
 export default function ProductCard({
   product,
   showLowStockBadge = true,
-  showQuantitySelector = true,
+  showCart = true,
   whatsapp = '',
 }: {
   product: Product
   showLowStockBadge?: boolean
-  showQuantitySelector?: boolean
+  showCart?: boolean
   whatsapp?: string
 }) {
   const [modalOpen, setModalOpen] = useState(false)
@@ -70,15 +70,25 @@ export default function ProductCard({
               Ver detalle
             </Link>
             {product.stock > 0 && (
-              <a
-                href={waUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="flex-1 bg-green-600 text-white font-semibold text-xs py-2.5 rounded-xl hover:bg-green-700 transition text-center"
-              >
-                Consultar
-              </a>
+              showCart ? (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setModalOpen(true) }}
+                  className="flex-1 text-white font-semibold text-xs py-2.5 rounded-xl transition text-center hover:opacity-90"
+                  style={{ backgroundColor: 'var(--primary)' }}
+                >
+                  + Agregar
+                </button>
+              ) : (
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex-1 bg-green-600 text-white font-semibold text-xs py-2.5 rounded-xl hover:bg-green-700 transition text-center"
+                >
+                  Consultar
+                </a>
+              )
             )}
           </div>
 
@@ -136,6 +146,14 @@ export default function ProductCard({
             <div className="mt-3 w-full bg-slate-200 text-slate-400 font-semibold py-2.5 rounded-xl text-sm text-center">
               Sin stock
             </div>
+          ) : showCart ? (
+            <button
+              onClick={() => setModalOpen(true)}
+              className="mt-3 w-full text-white font-semibold py-2.5 rounded-xl transition text-sm text-center hover:opacity-90"
+              style={{ backgroundColor: 'var(--primary)' }}
+            >
+              Agregar al carrito
+            </button>
           ) : (
             <a
               href={waUrl}
@@ -155,7 +173,7 @@ export default function ProductCard({
         onClose={() => setModalOpen(false)}
         whatsapp={whatsapp}
         showLowStockBadge={showLowStockBadge}
-        showQuantitySelector={showQuantitySelector}
+        showCart={showCart}
       />
     </>
   )
