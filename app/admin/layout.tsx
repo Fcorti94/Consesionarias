@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { getSiteConfig } from '@/lib/config-actions'
 import LogoutButton from './LogoutButton'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -8,11 +9,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (!user) return <>{children}</>
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  const [{ data: profile }, config] = await Promise.all([
+    supabase.from('profiles').select('role').eq('id', user.id).single(),
+    getSiteConfig(),
+  ])
   const role = profile?.role ?? 'admin'
   const isAdmin = role === 'admin'
 
@@ -21,9 +21,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* Sidebar */}
       <aside className="w-56 bg-slate-900 text-white flex flex-col shrink-0">
         <div className="p-5 border-b border-slate-700">
-          <div className="font-bold text-lg">
-            <span className="text-orange-400">Eco</span>AutoParts
-          </div>
+          {config.brand_logo_url ? (
+            <img
+              src={config.brand_logo_url}
+              alt={config.brand_name}
+              className="h-8 object-contain object-left mb-1"
+            />
+          ) : (
+            <div className="font-bold text-lg text-white">{config.brand_name}</div>
+          )}
           <p className="text-slate-400 text-xs mt-0.5">
             {isAdmin ? 'Panel Admin' : 'Panel Vendedor'}
           </p>
