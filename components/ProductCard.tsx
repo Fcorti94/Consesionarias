@@ -3,18 +3,23 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import type { Product } from '@/lib/types'
-import { useCart } from './CartContext'
 import ProductModal from './ProductModal'
 
 export default function ProductCard({
   product,
   showLowStockBadge = true,
+  whatsapp = '',
 }: {
   product: Product
   showLowStockBadge?: boolean
+  whatsapp?: string
 }) {
-  const { add } = useCart()
   const [modalOpen, setModalOpen] = useState(false)
+
+  const waMessage = encodeURIComponent(`Hola, me interesa consultar sobre: ${product.name}`)
+  const waUrl = whatsapp
+    ? `https://wa.me/${whatsapp.replace(/\D/g, '')}?text=${waMessage}`
+    : '#'
 
   const discount = product.original_price
     ? Math.round((1 - product.price / product.original_price) * 100)
@@ -23,8 +28,6 @@ export default function ProductCard({
   function fmt(n: number) {
     return n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })
   }
-
-  const stars = '★'.repeat(Math.round(product.rating)) + '☆'.repeat(5 - Math.round(product.rating))
 
   return (
     <>
@@ -64,14 +67,16 @@ export default function ProductCard({
             >
               Ver detalle
             </Link>
-            {product.stock > 0 && !product.variants?.length && (
-              <button
-                onClick={(e) => { e.stopPropagation(); add(product) }}
-                className="flex-1 text-white font-semibold text-xs py-2.5 rounded-xl transition hover:opacity-90"
-                style={{ backgroundColor: 'var(--primary)' }}
+            {product.stock > 0 && (
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="flex-1 bg-green-600 text-white font-semibold text-xs py-2.5 rounded-xl hover:bg-green-700 transition text-center"
               >
-                + Agregar
-              </button>
+                Consultar
+              </a>
             )}
           </div>
 
@@ -116,11 +121,6 @@ export default function ProductCard({
             {product.name}
           </h3>
 
-          <div className="flex items-center gap-1 mb-3">
-            <span className="stars text-xs">{stars}</span>
-            <span className="text-[11px] text-slate-400">({product.reviews})</span>
-          </div>
-
           <div className="mt-auto">
             {product.original_price && (
               <p className="text-slate-400 line-through text-xs leading-none mb-0.5">
@@ -130,18 +130,30 @@ export default function ProductCard({
             <p className="text-lg font-black text-slate-900 leading-none">{fmt(product.price)}</p>
           </div>
 
-          <button
-            onClick={() => product.variants?.length ? setModalOpen(true) : add(product)}
-            disabled={product.stock === 0}
-            className="mt-3 w-full text-white font-semibold py-2.5 rounded-xl transition text-sm disabled:bg-slate-200 disabled:text-slate-400 hover:opacity-90"
-            style={product.stock === 0 ? {} : { backgroundColor: 'var(--primary)' }}
-          >
-            {product.stock === 0 ? 'Sin stock' : product.variants?.length ? 'Elegir variante' : 'Agregar al carrito'}
-          </button>
+          {product.stock === 0 ? (
+            <div className="mt-3 w-full bg-slate-200 text-slate-400 font-semibold py-2.5 rounded-xl text-sm text-center">
+              Sin stock
+            </div>
+          ) : (
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl transition text-sm text-center block"
+            >
+              Contactar vendedor
+            </a>
+          )}
         </div>
       </div>
 
-      <ProductModal product={product} open={modalOpen} onClose={() => setModalOpen(false)} />
+      <ProductModal
+        product={product}
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        whatsapp={whatsapp}
+        showLowStockBadge={showLowStockBadge}
+      />
     </>
   )
 }

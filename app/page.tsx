@@ -229,7 +229,14 @@ export default async function HomePage() {
                 </Link>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {featured.map((p) => <ProductCard key={p.id} product={p} showLowStockBadge={config.show_low_stock_badge} />)}
+                {featured.map((p) => (
+                <ProductCard
+                  key={p.id}
+                  product={p}
+                  showLowStockBadge={config.show_low_stock_badge}
+                  whatsapp={config.whatsapp}
+                />
+              ))}
               </div>
             </div>
           </section>

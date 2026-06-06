@@ -106,10 +106,21 @@ export default async function ConfiguracionPage() {
                 Badge "¡Últimas unidades!"
               </label>
               <p className="text-xs text-slate-400 mt-0.5">
-                Mostrá un badge en productos con 1–2 unidades en stock. Desactivar para concesionarias o productos únicos.
+                Mostrá el badge en productos con 1–2 unidades. Desactivar para concesionarias o unidades únicas.
               </p>
             </div>
             <Toggle id="show_low_stock_badge" name="show_low_stock_badge" defaultChecked={config.show_low_stock_badge} />
+          </div>
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div>
+              <label htmlFor="show_quantity_selector" className="block text-sm font-medium text-slate-700 cursor-pointer">
+                Selector de cantidad
+              </label>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Permite al visitante elegir cuántas unidades consulta. Desactivar para vehículos u objetos únicos.
+              </p>
+            </div>
+            <Toggle id="show_quantity_selector" name="show_quantity_selector" defaultChecked={config.show_quantity_selector} />
           </div>
         </Section>
 

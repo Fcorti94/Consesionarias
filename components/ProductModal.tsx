@@ -3,19 +3,22 @@
 import { useState, useEffect } from 'react'
 import { normalizeVariant } from '@/lib/types'
 import type { Product, ProductVariant } from '@/lib/types'
-import { useCart } from './CartContext'
 
 interface Props {
   product: Product
   open: boolean
   onClose: () => void
+  whatsapp?: string
+  showLowStockBadge?: boolean
+  showQuantitySelector?: boolean
 }
 
-export default function ProductModal({ product, open, onClose }: Props) {
-  const { add } = useCart()
+export default function ProductModal({
+  product, open, onClose,
+  whatsapp = '', showLowStockBadge = true, showQuantitySelector = true,
+}: Props) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>()
   const [qty, setQty] = useState(1)
-  const [added, setAdded] = useState(false)
 
   const variants: ProductVariant[] = (product.variants ?? []).map(normalizeVariant)
 
@@ -23,7 +26,6 @@ export default function ProductModal({ product, open, onClose }: Props) {
     if (open) {
       setSelectedVariant(variants[0] ?? undefined)
       setQty(1)
-      setAdded(false)
     }
   }, [open, product])
 
@@ -47,13 +49,10 @@ export default function ProductModal({ product, open, onClose }: Props) {
     return n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })
   }
 
-  const stars = '★'.repeat(Math.round(product.rating)) + '☆'.repeat(5 - Math.round(product.rating))
-
-  function handleAdd() {
-    for (let i = 0; i < qty; i++) add(product, selectedVariant?.name)
-    setAdded(true)
-    setTimeout(() => setAdded(false), 1500)
-  }
+  const waMessage = encodeURIComponent(`Hola, me interesa consultar sobre: ${product.name}`)
+  const waUrl = whatsapp
+    ? `https://wa.me/${whatsapp.replace(/\D/g, '')}?text=${waMessage}`
+    : '#'
 
   return (
     <>
@@ -106,11 +105,6 @@ export default function ProductModal({ product, open, onClose }: Props) {
               </p>
               <h2 className="text-xl font-bold text-slate-800 mb-2 leading-snug">{product.name}</h2>
 
-              <div className="flex items-center gap-2 mb-3">
-                <span className="stars text-sm">{stars}</span>
-                <span className="text-sm text-slate-400">{product.rating} ({product.reviews} opiniones)</span>
-              </div>
-
               {product.description && (
                 <p className="text-slate-600 text-sm leading-relaxed mb-4">{product.description}</p>
               )}
@@ -134,11 +128,11 @@ export default function ProductModal({ product, open, onClose }: Props) {
                   effectiveStock > 5 ? 'bg-emerald-500' : effectiveStock > 0 ? 'bg-amber-500' : 'bg-red-500'
                 }`} />
                 <span className="text-sm text-slate-600">
-                  {effectiveStock > 5
-                    ? 'En stock'
-                    : effectiveStock > 0
+                  {effectiveStock === 0
+                    ? 'Sin stock'
+                    : showLowStockBadge && effectiveStock <= 5
                     ? `Últimas ${effectiveStock} unidades`
-                    : 'Sin stock'}
+                    : 'Disponible'}
                 </span>
               </div>
 
@@ -171,29 +165,34 @@ export default function ProductModal({ product, open, onClose }: Props) {
               )}
 
               {/* Qty */}
-              <div className="flex items-center gap-3 mb-5">
-                <span className="text-sm font-semibold text-slate-700">Cantidad:</span>
-                <div className="flex items-center border-2 border-slate-200 rounded-xl overflow-hidden">
-                  <button
-                    onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="px-3 py-1.5 hover:bg-slate-50 text-lg text-slate-600 transition"
-                  >−</button>
-                  <span className="px-4 py-1.5 font-bold text-slate-800 min-w-[3rem] text-center">{qty}</span>
-                  <button
-                    onClick={() => setQty(Math.min(effectiveStock, qty + 1))}
-                    className="px-3 py-1.5 hover:bg-slate-50 text-lg text-slate-600 transition"
-                  >+</button>
+              {showQuantitySelector && effectiveStock > 0 && (
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-sm font-semibold text-slate-700">Cantidad:</span>
+                  <div className="flex items-center border-2 border-slate-200 rounded-xl overflow-hidden">
+                    <button onClick={() => setQty(Math.max(1, qty - 1))} className="px-3 py-1.5 hover:bg-slate-50 text-lg text-slate-600 transition">−</button>
+                    <span className="px-4 py-1.5 font-bold text-slate-800 min-w-[3rem] text-center">{qty}</span>
+                    <button onClick={() => setQty(Math.min(effectiveStock, qty + 1))} className="px-3 py-1.5 hover:bg-slate-50 text-lg text-slate-600 transition">+</button>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <button
-                onClick={handleAdd}
-                disabled={effectiveStock === 0}
-                className="w-full py-3.5 rounded-xl font-semibold text-white transition text-sm disabled:bg-slate-200 disabled:text-slate-400 hover:opacity-90"
-                style={effectiveStock === 0 ? {} : added ? { backgroundColor: '#10b981' } : { backgroundColor: 'var(--primary)' }}
-              >
-                {added ? '✓ Agregado al carrito' : effectiveStock === 0 ? 'Sin stock' : 'Agregar al carrito'}
-              </button>
+              {effectiveStock === 0 ? (
+                <div className="w-full py-3.5 rounded-xl font-semibold text-slate-400 bg-slate-200 text-sm text-center">
+                  Sin stock
+                </div>
+              ) : (
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3.5 rounded-xl font-semibold text-white text-sm text-center flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 transition"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413zM12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.528 5.857L.057 23.882l6.195-1.623A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.893 9.893 0 01-5.031-1.368l-.361-.214-3.741.981.999-3.648-.235-.374A9.861 9.861 0 012.106 12C2.106 6.58 6.58 2.106 12 2.106S21.894 6.58 21.894 12 17.42 21.894 12 21.894z"/>
+                  </svg>
+                  Contactar vendedor
+                </a>
+              )}
             </div>
           </div>
         </div>

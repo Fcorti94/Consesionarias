@@ -124,7 +124,12 @@ export default async function ProductsPage({
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
                 {products.map((p) => (
-                  <ProductCard key={p.id} product={p} showLowStockBadge={config.show_low_stock_badge} />
+                  <ProductCard
+                    key={p.id}
+                    product={p}
+                    showLowStockBadge={config.show_low_stock_badge}
+                    whatsapp={config.whatsapp}
+                  />
                 ))}
               </div>
             )}

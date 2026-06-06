@@ -33,7 +33,8 @@ export async function getSiteConfig(): Promise<SiteConfig> {
       show_categories:  typeof data.show_categories === 'boolean' ? data.show_categories : true,
       show_brands:      typeof data.show_brands === 'boolean' ? data.show_brands : true,
       show_featured:       typeof data.show_featured === 'boolean' ? data.show_featured : true,
-      show_low_stock_badge: typeof data.show_low_stock_badge === 'boolean' ? data.show_low_stock_badge : true,
+      show_low_stock_badge:   typeof data.show_low_stock_badge   === 'boolean' ? data.show_low_stock_badge   : true,
+      show_quantity_selector: typeof data.show_quantity_selector === 'boolean' ? data.show_quantity_selector : true,
       promo_badge_text: typeof data.promo_badge_text === 'string' ? data.promo_badge_text : DEFAULT_CONFIG.promo_badge_text,
       section_order: Array.isArray(data.section_order) ? data.section_order : DEFAULT_SECTION_ORDER,
     }
@@ -102,7 +103,8 @@ export async function updateSiteConfig(formData: FormData) {
       show_categories:  formData.get('show_categories') === 'on',
       show_brands:      formData.get('show_brands') === 'on',
       show_featured:        formData.get('show_featured') === 'on',
-      show_low_stock_badge: formData.get('show_low_stock_badge') === 'on',
+      show_low_stock_badge:   formData.get('show_low_stock_badge')   === 'on',
+      show_quantity_selector: formData.get('show_quantity_selector') === 'on',
       promo_badge_text:     formData.get('promo_badge_text') as string,
       section_order: (() => {
         try {
