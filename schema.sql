@@ -96,8 +96,12 @@ ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_promo       BOOLEAN NOT NU
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_categories  BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_brands      BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_featured    BOOLEAN NOT NULL DEFAULT true;
-ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_contact_cta BOOLEAN NOT NULL DEFAULT true;
-ALTER TABLE site_config ADD COLUMN IF NOT EXISTS section_order    JSONB;
+ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_contact_cta      BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE site_config ADD COLUMN IF NOT EXISTS section_order         JSONB;
+ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_low_stock_badge  BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_quantity_selector BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_cart             BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE site_config ADD COLUMN IF NOT EXISTS promo_badge_text      TEXT    NOT NULL DEFAULT 'Oferta especial';
 
 -- Insertar fila por defecto si no existe
 INSERT INTO site_config (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
