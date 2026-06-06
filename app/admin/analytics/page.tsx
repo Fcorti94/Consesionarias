@@ -65,9 +65,10 @@ export default async function AnalyticsPage() {
     .slice(0, 6)
 
   // Orders (only if show_cart)
-  const { data: orders = [] } = config.show_cart
+  const { data: ordersRaw } = config.show_cart
     ? await supabase.from('orders').select('status, total, created_at')
     : { data: [] as { status: string; total: number; created_at: string }[] }
+  const orders = ordersRaw ?? []
 
   const approvedOrders = orders.filter(o => o.status === 'approved')
   const pendingOrders  = orders.filter(o => o.status === 'pending')
