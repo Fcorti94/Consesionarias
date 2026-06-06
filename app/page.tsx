@@ -86,7 +86,7 @@ export default async function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/70 to-transparent" />
               <div className="relative px-6 md:px-14 py-10 md:py-20 max-w-lg">
                 <span className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full text-white mb-4" style={{ backgroundColor: 'var(--primary)' }}>
-                  Oferta especial
+                  {config.promo_badge_text || 'Oferta especial'}
                 </span>
                 <h2 className="text-3xl md:text-4xl font-black text-white mb-3 leading-tight">
                   {config.promo_title}
@@ -137,7 +137,7 @@ export default async function HomePage() {
                     href="/productos?oferta=1"
                     className="border-2 border-white/40 hover:bg-white/10 text-white font-semibold px-7 py-3.5 rounded-xl transition"
                   >
-                    Ver ofertas
+                    Ver oportunidades
                   </Link>
                 </div>
                 {heroStats.length > 0 && (
@@ -229,7 +229,7 @@ export default async function HomePage() {
                 </Link>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {featured.map((p) => <ProductCard key={p.id} product={p} />)}
+                {featured.map((p) => <ProductCard key={p.id} product={p} showLowStockBadge={config.show_low_stock_badge} />)}
               </div>
             </div>
           </section>

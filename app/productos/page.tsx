@@ -61,9 +61,9 @@ export default async function ProductsPage({
     : activeCat
     ? activeCat.label
     : params.oferta === '1'
-    ? 'Ofertas'
+    ? 'Oportunidades'
     : params.stock === '1'
-    ? 'Con envío gratis'
+    ? 'Con stock disponible'
     : 'Todos los productos'
 
   const subtitle = activeCat?.sub ?? null
@@ -124,7 +124,7 @@ export default async function ProductsPage({
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
                 {products.map((p) => (
-                  <ProductCard key={p.id} product={p} />
+                  <ProductCard key={p.id} product={p} showLowStockBadge={config.show_low_stock_badge} />
                 ))}
               </div>
             )}

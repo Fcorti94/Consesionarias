@@ -14,7 +14,6 @@ interface HeaderProps {
   phone?:            string
   whatsapp?:         string
   instagram?:        string
-  installments?:     number
   shippingFreeFrom?: number
   categories?:       ConfigCategory[]
 }
@@ -26,7 +25,6 @@ export default function Header({
   phone            = '',
   whatsapp         = '',
   instagram        = '',
-  installments     = 12,
   shippingFreeFrom = 50000,
   categories       = [],
 }: HeaderProps) {
@@ -62,20 +60,6 @@ export default function Header({
 
   return (
     <>
-      {/* ── Announcement bar ── */}
-      <div className="bg-[var(--navy)] text-slate-300 text-xs">
-        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
-          <span className="hidden sm:block">
-            🚚 Envío gratis en compras +{fmt(shippingFreeFrom)} &nbsp;·&nbsp; Retiro en sucursal &nbsp;·&nbsp; {installments} cuotas sin interés
-          </span>
-          <span className="sm:hidden">🚚 Envío gratis +{fmt(shippingFreeFrom)}</span>
-          <div className="hidden md:flex items-center gap-5 text-slate-400">
-            <a href="#" className="hover:text-white transition">Seguir pedido</a>
-            <a href="#" className="hover:text-white transition">Ayuda</a>
-          </div>
-        </div>
-      </div>
-
       {/* ── Main header ── */}
       <header className="bg-white border-b border-slate-100 sticky top-0 z-30 shadow-sm">
 
@@ -312,7 +296,7 @@ export default function Header({
               onClick={() => setMenuOpen(false)}
               className="px-3 py-3 md:py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition border-b border-slate-50 md:border-none"
             >
-              Ofertas
+              Oportunidades
             </Link>
             <Link
               href="/faq"
@@ -320,14 +304,6 @@ export default function Header({
               className="px-3 py-3 md:py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition border-b border-slate-50 md:border-none"
             >
               Preguntas frecuentes
-            </Link>
-            <Link
-              href="/productos?stock=1"
-              onClick={() => setMenuOpen(false)}
-              className="px-3 py-3 md:py-2 text-sm font-semibold rounded-lg transition hover:bg-emerald-50"
-              style={{ color: '#10b981' }}
-            >
-              Envío gratis +{fmt(shippingFreeFrom)}
             </Link>
           </div>
         </nav>

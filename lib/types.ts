@@ -88,6 +88,7 @@ export interface SiteConfig {
   // Trust bar
   trust_items: TrustItem[] | null
   // Promo banner
+  promo_badge_text: string
   promo_title: string
   promo_subtitle: string
   promo_image_url: string
@@ -111,6 +112,7 @@ export interface SiteConfig {
   show_categories: boolean
   show_brands: boolean
   show_featured: boolean
+  show_low_stock_badge: boolean
   section_order: string[]
   updated_at: string
 }
@@ -232,6 +234,7 @@ export const DEFAULT_CONFIG: SiteConfig = {
   hero_cta_text:   'Ver todos los productos',
   hero_stats:      DEFAULT_HERO_STATS,
   trust_items:     DEFAULT_TRUST_ITEMS,
+  promo_badge_text: 'Oferta especial',
   promo_title:     'Hasta 30% OFF en frenos y suspensión',
   promo_subtitle:  'Por tiempo limitado. Stock sujeto a disponibilidad.',
   promo_image_url: 'https://images.unsplash.com/photo-1632286338908-ab1b765e6b56?w=1200&q=80&auto=format&fit=crop',
@@ -249,7 +252,8 @@ export const DEFAULT_CONFIG: SiteConfig = {
   show_promo:       true,
   show_categories:  true,
   show_brands:      true,
-  show_featured:    true,
+  show_featured:       true,
+  show_low_stock_badge: true,
   section_order:    ['brands', 'promo', 'hero', 'trust_bar', 'categories', 'featured'],
   updated_at: new Date().toISOString(),
 }

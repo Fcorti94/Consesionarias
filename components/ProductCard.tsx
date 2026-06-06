@@ -6,7 +6,13 @@ import type { Product } from '@/lib/types'
 import { useCart } from './CartContext'
 import ProductModal from './ProductModal'
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({
+  product,
+  showLowStockBadge = true,
+}: {
+  product: Product
+  showLowStockBadge?: boolean
+}) {
   const { add } = useCart()
   const [modalOpen, setModalOpen] = useState(false)
 
@@ -83,7 +89,7 @@ export default function ProductCard({ product }: { product: Product }) {
             )}
           </div>
 
-          {product.stock <= 2 && product.stock > 0 && (
+          {showLowStockBadge && product.stock <= 2 && product.stock > 0 && (
             <span className="absolute top-2 right-2 bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
               ¡Últimas!
             </span>

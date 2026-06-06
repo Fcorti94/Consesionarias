@@ -13,7 +13,6 @@ export default async function HeaderWrapper() {
       phone={config.phone}
       whatsapp={config.whatsapp}
       instagram={config.instagram}
-      installments={config.installments}
       shippingFreeFrom={config.shipping_free_from}
       categories={categories}
     />

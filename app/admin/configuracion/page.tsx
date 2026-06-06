@@ -100,6 +100,17 @@ export default async function ConfiguracionPage() {
             <Field label="Envío gratis desde ($)" name="shipping_free_from" type="number" defaultValue={String(config.shipping_free_from)} placeholder="50000" />
             <Field label="Cuotas sin interés"      name="installments"       type="number" defaultValue={String(config.installments)} placeholder="12" />
           </div>
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div>
+              <label htmlFor="show_low_stock_badge" className="block text-sm font-medium text-slate-700 cursor-pointer">
+                Badge "¡Últimas unidades!"
+              </label>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Mostrá un badge en productos con 1–2 unidades en stock. Desactivar para concesionarias o productos únicos.
+              </p>
+            </div>
+            <Toggle id="show_low_stock_badge" name="show_low_stock_badge" defaultChecked={config.show_low_stock_badge} />
+          </div>
         </Section>
 
         {/* ── Marcas ── */}
@@ -127,6 +138,8 @@ export default async function ConfiguracionPage() {
           hint="Sección con fondo oscuro e imagen. Aparece entre los productos destacados y las marcas."
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Texto del badge (ej: Oferta especial, Novedad)" name="promo_badge_text" defaultValue={config.promo_badge_text} placeholder="Oferta especial" />
+            <div />
             <Field label="Título"          name="promo_title"     defaultValue={config.promo_title}     placeholder="Hasta 30% OFF en frenos" />
             <Field label="Subtítulo"       name="promo_subtitle"  defaultValue={config.promo_subtitle}  placeholder="Por tiempo limitado." />
             <ImageInput name="promo_image_url" defaultValue={config.promo_image_url} label="Imagen de fondo" placeholder="https://..." />
