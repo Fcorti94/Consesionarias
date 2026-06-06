@@ -169,7 +169,61 @@ CREATE POLICY "admin_all_attribute_definitions" ON attribute_definitions
 
 
 -- ============================================================
--- 5. STORAGE
+-- 5. PROFILES (roles de usuarios del panel admin)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS profiles (
+  id         UUID    PRIMARY KEY REFERENCES auth.users ON DELETE CASCADE,
+  role       TEXT    NOT NULL DEFAULT 'admin' CHECK (role IN ('admin', 'vendedor')),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Auto-crear perfil cuando se registra un nuevo usuario
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO profiles (id, role) VALUES (NEW.id, 'admin') ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "read_own_profile" ON profiles
+  FOR SELECT TO authenticated USING (auth.uid() = id);
+
+-- Insertar perfiles para usuarios ya existentes
+INSERT INTO profiles (id, role)
+SELECT id, 'admin' FROM auth.users
+ON CONFLICT (id) DO NOTHING;
+
+
+-- ============================================================
+-- 6. WHATSAPP CLICKS (tracking de consultas a vendedor)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS whatsapp_clicks (
+  id           UUID    DEFAULT gen_random_uuid() PRIMARY KEY,
+  product_id   UUID    REFERENCES products(id) ON DELETE SET NULL,
+  product_name TEXT    NOT NULL DEFAULT '',
+  source       TEXT    NOT NULL DEFAULT 'card' CHECK (source IN ('card', 'modal', 'detail')),
+  created_at   TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE whatsapp_clicks ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "public_insert_whatsapp_clicks" ON whatsapp_clicks
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "authenticated_read_whatsapp_clicks" ON whatsapp_clicks
+  FOR SELECT TO authenticated USING (true);
+
+
+-- ============================================================
+-- 7. STORAGE
 -- Ejecutar esto también (o crear los buckets desde el dashboard)
 -- ============================================================
 

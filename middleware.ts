@@ -33,8 +33,26 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/admin/login', request.url))
   }
 
-  if (isLoginPage && user) {
-    return NextResponse.redirect(new URL('/admin', request.url))
+  if (user && isAdminRoute) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    const role = profile?.role ?? 'admin'
+
+    if (isLoginPage) {
+      const dest = role === 'vendedor' ? '/admin/ordenes' : '/admin'
+      return NextResponse.redirect(new URL(dest, request.url))
+    }
+
+    if (role === 'vendedor') {
+      const vendorPaths = ['/admin/ordenes', '/admin/analytics']
+      const allowed = vendorPaths.some(p => request.nextUrl.pathname.startsWith(p))
+      if (!allowed) {
+        return NextResponse.redirect(new URL('/admin/ordenes', request.url))
+      }
+    }
   }
 
   return supabaseResponse

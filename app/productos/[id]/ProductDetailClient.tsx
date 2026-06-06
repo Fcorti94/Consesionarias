@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { normalizeVariant } from '@/lib/types'
 import type { Product, ProductVariant } from '@/lib/types'
 import { useCart } from '@/components/CartContext'
+import { trackWhatsappClick } from '@/lib/analytics-actions'
 
 interface Props {
   product: Product
@@ -246,6 +247,7 @@ export default function ProductDetailClient({
                     href={waUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => { trackWhatsappClick(product.id, product.name, 'detail') }}
                     className="flex-1 py-3 rounded-xl font-bold text-white text-sm transition hover:opacity-90 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">

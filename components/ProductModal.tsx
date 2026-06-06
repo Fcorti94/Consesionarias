@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { normalizeVariant } from '@/lib/types'
 import type { Product, ProductVariant } from '@/lib/types'
 import { useCart } from './CartContext'
+import { trackWhatsappClick } from '@/lib/analytics-actions'
 
 interface Props {
   product: Product
@@ -221,6 +222,7 @@ export default function ProductModal({
                   href={waUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => { trackWhatsappClick(product.id, product.name, 'modal') }}
                   className="w-full py-3.5 rounded-xl font-semibold text-white text-sm text-center flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 transition"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">

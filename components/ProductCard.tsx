@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import type { Product } from '@/lib/types'
 import ProductModal from './ProductModal'
+import { trackWhatsappClick } from '@/lib/analytics-actions'
 
 export default function ProductCard({
   product,
@@ -147,6 +148,7 @@ export default function ProductCard({
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => { trackWhatsappClick(product.id, product.name, 'card') }}
               className="mt-3 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl transition text-sm text-center block"
             >
               Contactar vendedor

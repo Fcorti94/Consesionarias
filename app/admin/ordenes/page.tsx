@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getSiteConfig } from '@/lib/config-actions'
 import type { Order } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -24,6 +25,7 @@ function fmtDate(s: string) {
 
 export default async function OrdenesPage() {
   const supabase = await createClient()
+  const config = await getSiteConfig()
   const { data: orders } = await supabase
     .from('orders')
     .select('*')
@@ -41,6 +43,17 @@ export default async function OrdenesPage() {
         <h1 className="text-2xl font-bold text-slate-800">Órdenes</h1>
         <p className="text-slate-400 text-sm mt-0.5">Pedidos recibidos a través de Mercado Pago.</p>
       </div>
+
+      {!config.show_cart && (
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 text-amber-800 text-sm flex items-start gap-3">
+          <svg className="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>El carrito de compras está desactivado. Las nuevas órdenes solo se generan cuando el carrito está habilitado. Podés activarlo desde <a href="/admin/configuracion" className="font-semibold underline">Configuración</a>.</p>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
