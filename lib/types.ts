@@ -76,6 +76,7 @@ export interface SiteConfig {
   phone: string
   whatsapp: string
   instagram: string
+  facebook: string
   email: string
   address: string
   // Hero
@@ -227,6 +228,7 @@ export const DEFAULT_CONFIG: SiteConfig = {
   phone:     '',
   whatsapp:  '',
   instagram: '',
+  facebook:  '',
   email:     '',
   address:   '',
   hero_title:      'Todo lo que necesitás',

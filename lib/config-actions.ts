@@ -79,6 +79,7 @@ export async function updateSiteConfig(formData: FormData) {
       phone:               formData.get('phone') as string,
       whatsapp:            formData.get('whatsapp') as string,
       instagram:           formData.get('instagram') as string,
+      facebook:            formData.get('facebook') as string,
       email:               formData.get('email') as string,
       address:             formData.get('address') as string,
       hero_title:          formData.get('hero_title') as string,

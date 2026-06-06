@@ -89,6 +89,7 @@ export default async function ConfiguracionPage() {
             <Field label="Teléfono"                            name="phone"     defaultValue={config.phone}     placeholder="+54 9 351 000-0000" />
             <Field label="WhatsApp (número sin + ni espacios)" name="whatsapp"  defaultValue={config.whatsapp}  placeholder="5493510000000" />
             <Field label="Instagram (usuario o URL completa)"  name="instagram" defaultValue={config.instagram} placeholder="@mitienda o https://instagram.com/mitienda" />
+            <Field label="Facebook (usuario o URL completa)"   name="facebook"  defaultValue={config.facebook}  placeholder="@mitienda o https://facebook.com/mitienda" />
             <Field label="Email"    type="email"               name="email"     defaultValue={config.email}     placeholder="contacto@mitienda.com" />
             <Field label="Dirección"                           name="address"   defaultValue={config.address}   placeholder="Av. Siempre Viva 742, Ciudad" />
           </div>
