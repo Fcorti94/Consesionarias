@@ -4,6 +4,7 @@ import './globals.css'
 import { CartProvider } from '@/components/CartContext'
 import { getSiteConfig } from '@/lib/config-actions'
 import WhatsAppButton from '@/components/WhatsAppButton'
+import { Analytics } from '@vercel/analytics/next'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -68,6 +69,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="min-h-screen flex flex-col bg-slate-50">
         <CartProvider>{children}</CartProvider>
         <WhatsAppButton whatsapp={config.whatsapp} brandName={config.brand_name} />
+        <Analytics />
       </body>
     </html>
   )

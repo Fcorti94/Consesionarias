@@ -200,14 +200,12 @@ export default async function AnalyticsPage() {
           Tráfico web (Vercel Analytics)
         </h2>
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 flex flex-col items-center text-center">
-          <span className="inline-block bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1 rounded-full mb-4">
-            Plan Pro requerido
-          </span>
           <p className="text-slate-600 text-sm mb-1">
-            Las métricas de tráfico web (visitas, páginas vistas, usuarios únicos) están disponibles con Vercel Analytics en el plan Pro.
+            El tracking ya está activo en el sitio (<code className="bg-slate-100 px-1 rounded text-xs">@vercel/analytics</code>).
+            Vercel recolecta visitas, páginas vistas y Web Vitals automáticamente.
           </p>
           <p className="text-slate-400 text-xs mb-5">
-            Una vez que hagas el upgrade, se podrán integrar directamente en esta pantalla.
+            Podés ver esos datos en el dashboard de Vercel. Para integrarlos directamente acá necesitás la Analytics API, disponible en el plan Pro.
           </p>
           <a
             href="https://vercel.com/dashboard"
@@ -215,7 +213,7 @@ export default async function AnalyticsPage() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition"
           >
-            Ir al dashboard de Vercel
+            Ver en Vercel Analytics
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
               <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
