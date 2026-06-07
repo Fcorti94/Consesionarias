@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS products (
   description    TEXT,
   stock          INTEGER        NOT NULL DEFAULT 0,
   badge          TEXT           CHECK (badge IN ('Oferta', 'Nuevo')),
-  variants       TEXT[]         DEFAULT '{}',
+  variants       JSONB          DEFAULT '[]',
   attributes     JSONB          DEFAULT '{}',
   rating         NUMERIC(3,1)   DEFAULT 0 CHECK (rating >= 0 AND rating <= 5),
   reviews        INTEGER        DEFAULT 0,
@@ -31,16 +31,6 @@ ALTER TABLE products ADD COLUMN IF NOT EXISTS attributes  JSONB    DEFAULT '{}';
 ALTER TABLE products ADD COLUMN IF NOT EXISTS image_urls  TEXT[]   DEFAULT '{}';
 ALTER TABLE products ADD COLUMN IF NOT EXISTS categories  TEXT[]   DEFAULT '{}';
 
--- Migrate variants from TEXT[] to JSONB (each variant gets stock: 0)
-ALTER TABLE products
-  ALTER COLUMN variants TYPE JSONB
-  USING (
-    CASE
-      WHEN variants IS NULL OR array_length(variants, 1) IS NULL THEN NULL
-      ELSE (SELECT jsonb_agg(jsonb_build_object('name', v, 'stock', 0))
-            FROM unnest(variants) AS v)
-    END
-  );
 
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 
