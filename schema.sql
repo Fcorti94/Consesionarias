@@ -168,18 +168,18 @@ CREATE TABLE IF NOT EXISTS profiles (
 );
 
 -- Auto-crear perfil cuando se registra un nuevo usuario
-CREATE OR REPLACE FUNCTION handle_new_user()
+CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (id, role) VALUES (NEW.id, 'admin') ON CONFLICT (id) DO NOTHING;
+  INSERT INTO public.profiles (id, role) VALUES (NEW.id, 'admin') ON CONFLICT (id) DO NOTHING;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
