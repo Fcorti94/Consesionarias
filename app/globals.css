@@ -126,14 +126,6 @@ img { display: block; max-width: 100%; }
   opacity: 1;
   transform: translateY(0);
 }
-/* Touch devices: always show the action buttons */
-@media (hover: none) {
-  .product-quick-add {
-    opacity: 1;
-    transform: translateY(0);
-    background: rgba(15, 23, 42, 0.5);
-  }
-}
 
 /* ============================================================
    Cart sidebar slide-in
