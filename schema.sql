@@ -80,6 +80,7 @@ ALTER TABLE site_config ADD COLUMN IF NOT EXISTS brands           JSONB;
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS categories       JSONB;
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS faq_items        JSONB;
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS dark_mode        BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE site_config ADD COLUMN IF NOT EXISTS dark_color       TEXT    NOT NULL DEFAULT '';
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_hero        BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_trust_bar   BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_promo       BOOLEAN NOT NULL DEFAULT true;

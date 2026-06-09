@@ -106,7 +106,7 @@ export interface SiteConfig {
   // FAQ
   faq_items: FaqItem[] | null
   // Appearance
-  dark_mode: boolean
+  dark_color: string
   show_hero: boolean
   show_trust_bar: boolean
   show_promo: boolean
@@ -251,7 +251,7 @@ export const DEFAULT_CONFIG: SiteConfig = {
   installments:       12,
   footer_text:        '',
   faq_items:          DEFAULT_FAQ_ITEMS,
-  dark_mode:          false,
+  dark_color:         '',
   show_hero:        true,
   show_trust_bar:   true,
   show_promo:       true,

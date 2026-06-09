@@ -4,6 +4,7 @@ import ConfigSubmitButton from './ConfigSubmitButton'
 import CategoriesEditor from './CategoriesEditor'
 import SectionOrderEditor from './SectionOrderEditor'
 import SectionStylesEditor from '@/components/SectionStylesEditor'
+import DarkColorPicker from '@/components/DarkColorPicker'
 import ImageInput from '@/components/ImageInput'
 import {
   DEFAULT_TRUST_ITEMS,
@@ -78,14 +79,10 @@ export default async function ConfiguracionPage() {
             <ColorField label="Color primario"            name="primary_color"       defaultValue={config.primary_color} />
             <ColorField label="Color hover (más oscuro)"  name="primary_hover_color" defaultValue={config.primary_hover_color} />
           </div>
-          <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-            <div>
-              <label htmlFor="dark_mode" className="block text-sm font-medium text-slate-700 cursor-pointer">
-                Modo oscuro
-              </label>
-              <p className="text-xs text-slate-400 mt-0.5">Activa el tema oscuro en la tienda pública</p>
-            </div>
-            <Toggle id="dark_mode" name="dark_mode" defaultChecked={config.dark_mode} />
+          <div className="pt-4 border-t border-slate-100">
+            <p className="text-sm font-medium text-slate-700 mb-1">Color de fondo del sitio</p>
+            <p className="text-xs text-slate-400 mb-4">Elegí un color oscuro o dejá en modo claro. Las variantes para tarjetas y bordes se generan automáticamente.</p>
+            <DarkColorPicker defaultValue={config.dark_color ?? ''} />
           </div>
         </Section>
 
