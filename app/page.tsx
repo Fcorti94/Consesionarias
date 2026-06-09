@@ -13,7 +13,7 @@ import {
   DEFAULT_CATEGORIES,
   DEFAULT_SECTION_ORDER,
 } from '@/lib/types'
-import type { Product } from '@/lib/types'
+import type { Product, SectionStyle } from '@/lib/types'
 
 async function getFeaturedProducts(): Promise<Product[]> {
   try {
@@ -66,13 +66,24 @@ export default async function HomePage() {
   const heroStats   = Array.isArray(config.hero_stats)   ? config.hero_stats   : DEFAULT_HERO_STATS
   const brands      = Array.isArray(config.brands)       ? config.brands       : DEFAULT_BRANDS
   const categories  = Array.isArray(config.categories)   ? config.categories   : DEFAULT_CATEGORIES
-  const sectionOrder = Array.isArray(config.section_order) ? config.section_order : DEFAULT_SECTION_ORDER
+  const sectionOrder  = Array.isArray(config.section_order) ? config.section_order : DEFAULT_SECTION_ORDER
+  const sectionStyles = (config.section_styles ?? {}) as Record<string, SectionStyle>
+
+  function ss(id: string): React.CSSProperties {
+    const s = sectionStyles[id] ?? {}
+    return {
+      ...(s.fontFamily ? { fontFamily: `'${s.fontFamily}', sans-serif` } : {}),
+      ...(s.fontSize   ? { fontSize: s.fontSize } : {}),
+      ...(s.bgColor    ? { backgroundColor: s.bgColor } : {}),
+      ...(s.textColor  ? { color: s.textColor } : {}),
+    }
+  }
 
   function renderSection(id: string) {
     switch (id) {
       case 'brands':
         return config.show_brands && brands.length > 0 ? (
-          <section key="brands" className="bg-white border-b border-slate-100 py-10">
+          <section key="brands" className="bg-white border-b border-slate-100 py-10" style={ss('brands')}>
             <div className="max-w-7xl mx-auto px-4">
               <p className="text-center text-slate-400 text-sm font-medium uppercase tracking-widest mb-7">
                 Trabajamos con las mejores marcas
@@ -84,7 +95,7 @@ export default async function HomePage() {
 
       case 'promo':
         return config.show_promo && config.promo_title ? (
-          <section key="promo" className="max-w-7xl mx-auto px-4 py-14">
+          <section key="promo" className="max-w-7xl mx-auto px-4 py-14" style={ss('promo')}>
             <div className="relative rounded-3xl overflow-hidden">
               <img src={promoImage} alt="Promo" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/70 to-transparent" />
@@ -110,7 +121,7 @@ export default async function HomePage() {
 
       case 'hero':
         return config.show_hero ? (
-          <section key="hero" className="relative min-h-[580px] md:min-h-[680px] flex items-center overflow-hidden">
+          <section key="hero" className="relative min-h-[580px] md:min-h-[680px] flex items-center overflow-hidden" style={ss('hero')}>
             <div className="absolute inset-0">
               <img src={heroImage} alt="Hero" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-900/60 to-transparent" />
@@ -161,7 +172,7 @@ export default async function HomePage() {
 
       case 'trust_bar':
         return config.show_trust_bar && trustItems.length > 0 ? (
-          <section key="trust_bar" className="bg-white border-b border-slate-100">
+          <section key="trust_bar" className="bg-white border-b border-slate-100" style={ss('trust_bar')}>
             <div className="max-w-7xl mx-auto px-4 py-5">
               <div className="grid grid-cols-2 md:flex md:items-center md:justify-between gap-4">
                 {trustItems.map((item) => (
@@ -187,7 +198,7 @@ export default async function HomePage() {
 
       case 'categories':
         return config.show_categories ? (
-          <section key="categories" className="max-w-7xl mx-auto px-4 py-14">
+          <section key="categories" className="max-w-7xl mx-auto px-4 py-14" style={ss('categories')}>
             <div className="flex items-end justify-between mb-8">
               <div>
                 <h2 className="text-2xl md:text-3xl font-black text-slate-900">Encontrá lo que necesitás</h2>
@@ -220,7 +231,7 @@ export default async function HomePage() {
 
       case 'featured':
         return config.show_featured && featured.length > 0 ? (
-          <section key="featured" className="bg-slate-50 py-14">
+          <section key="featured" className="bg-slate-50 py-14" style={ss('featured')}>
             <div className="max-w-7xl mx-auto px-4">
               <div className="flex items-end justify-between mb-8">
                 <div>

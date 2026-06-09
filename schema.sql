@@ -93,6 +93,7 @@ ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_low_stock_badge  BOOLEAN N
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_quantity_selector BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_cart             BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS promo_badge_text      TEXT    NOT NULL DEFAULT 'Oferta especial';
+ALTER TABLE site_config ADD COLUMN IF NOT EXISTS section_styles        JSONB            DEFAULT '{}';
 
 -- Insertar fila por defecto si no existe
 INSERT INTO site_config (id) VALUES (1) ON CONFLICT (id) DO NOTHING;

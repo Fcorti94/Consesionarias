@@ -10,7 +10,7 @@ import {
   DEFAULT_FAQ_ITEMS,
   DEFAULT_SECTION_ORDER,
 } from '@/lib/types'
-import type { SiteConfig, FaqItem } from '@/lib/types'
+import type { SiteConfig, FaqItem, SectionStyle } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
 
 export async function getSiteConfig(): Promise<SiteConfig> {
@@ -37,7 +37,10 @@ export async function getSiteConfig(): Promise<SiteConfig> {
       show_quantity_selector: typeof data.show_quantity_selector === 'boolean' ? data.show_quantity_selector : true,
       show_cart:              typeof data.show_cart === 'boolean' ? data.show_cart : true,
       promo_badge_text: typeof data.promo_badge_text === 'string' ? data.promo_badge_text : DEFAULT_CONFIG.promo_badge_text,
-      section_order: Array.isArray(data.section_order) ? data.section_order : DEFAULT_SECTION_ORDER,
+      section_order:  Array.isArray(data.section_order) ? data.section_order : DEFAULT_SECTION_ORDER,
+      section_styles: (data.section_styles && typeof data.section_styles === 'object' && !Array.isArray(data.section_styles))
+        ? data.section_styles as Record<string, SectionStyle>
+        : {},
     }
   } catch {
     return DEFAULT_CONFIG
@@ -116,6 +119,16 @@ export async function updateSiteConfig(formData: FormData) {
           return Array.isArray(parsed) ? parsed : DEFAULT_SECTION_ORDER
         } catch {
           return DEFAULT_SECTION_ORDER
+        }
+      })(),
+      section_styles: (() => {
+        try {
+          const raw = formData.get('section_styles') as string
+          if (!raw) return {}
+          const parsed = JSON.parse(raw)
+          return (typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {}
+        } catch {
+          return {}
         }
       })(),
       updated_at:          new Date().toISOString(),

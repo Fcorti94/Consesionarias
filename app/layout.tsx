@@ -53,9 +53,25 @@ const DARK_CSS = `
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const config = await getSiteConfig()
 
+  // Collect unique Google Fonts needed by section_styles (skip Inter, already loaded)
+  const usedFonts = Object.values(config.section_styles ?? {})
+    .map(s => s.fontFamily)
+    .filter((f): f is string => !!f && f !== 'Inter')
+  const uniqueFonts = [...new Set(usedFonts)]
+  const googleFontsUrl = uniqueFonts.length > 0
+    ? `https://fonts.googleapis.com/css2?${uniqueFonts.map(f => `family=${f.replace(/ /g, '+')}:ital,wght@0,400;0,600;0,700;1,400`).join('&')}&display=swap`
+    : null
+
   return (
     <html lang="es" className={config.dark_mode ? `${inter.className} dark` : inter.className}>
       <head>
+        {googleFontsUrl && (
+          <>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+            <link href={googleFontsUrl} rel="stylesheet" />
+          </>
+        )}
         <style dangerouslySetInnerHTML={{
           __html: `
             :root {

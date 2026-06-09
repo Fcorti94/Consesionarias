@@ -3,6 +3,7 @@ import ConfigFormWrapper from './ConfigFormWrapper'
 import ConfigSubmitButton from './ConfigSubmitButton'
 import CategoriesEditor from './CategoriesEditor'
 import SectionOrderEditor from './SectionOrderEditor'
+import SectionStylesEditor from '@/components/SectionStylesEditor'
 import ImageInput from '@/components/ImageInput'
 import {
   DEFAULT_TRUST_ITEMS,
@@ -50,6 +51,11 @@ export default async function ConfiguracionPage() {
           initialOrder={sectionOrder}
           initialVisibility={sectionVisibility}
         />
+
+        {/* ── Tipografía y colores por sección ── */}
+        <Section title="Tipografía y colores por sección" hint="Personalizá la fuente, tamaño y colores de cada sección de la página principal. Los cambios se guardan junto con el resto de la configuración.">
+          <SectionStylesEditor defaultValue={config.section_styles ?? {}} />
+        </Section>
 
         {/* ── Marca ── */}
         <Section title="Marca">

@@ -116,7 +116,8 @@ export interface SiteConfig {
   show_low_stock_badge: boolean
   show_quantity_selector: boolean
   show_cart: boolean
-  section_order: string[]
+  section_order:  string[]
+  section_styles: Record<string, SectionStyle>
   updated_at: string
 }
 
@@ -261,7 +262,58 @@ export const DEFAULT_CONFIG: SiteConfig = {
   show_quantity_selector: true,
   show_cart:              true,
   section_order:    ['brands', 'promo', 'hero', 'trust_bar', 'categories', 'featured'],
+  section_styles:   {},
   updated_at: new Date().toISOString(),
 }
 
 export const DEFAULT_SECTION_ORDER = ['brands', 'promo', 'hero', 'trust_bar', 'categories', 'featured']
+
+export interface SectionStyle {
+  fontFamily?: string
+  fontSize?:   string
+  bgColor?:    string
+  textColor?:  string
+}
+
+export const GOOGLE_FONTS = [
+  'Inter',
+  'Roboto',
+  'Open Sans',
+  'Lato',
+  'Montserrat',
+  'Oswald',
+  'Raleway',
+  'Poppins',
+  'Merriweather',
+  'PT Sans',
+  'Nunito',
+  'Ubuntu',
+  'Playfair Display',
+  'Roboto Condensed',
+  'Source Sans 3',
+  'Noto Sans',
+  'Bebas Neue',
+  'Josefin Sans',
+  'Fira Sans',
+  'Work Sans',
+] as const
+
+export type GoogleFont = typeof GOOGLE_FONTS[number]
+
+export const FONT_SIZES = [
+  { label: 'Muy pequeño (12px)', value: '12px' },
+  { label: 'Pequeño (14px)',     value: '14px' },
+  { label: 'Normal (16px)',      value: '16px' },
+  { label: 'Grande (18px)',      value: '18px' },
+  { label: 'Muy grande (20px)',  value: '20px' },
+  { label: 'Extra grande (24px)', value: '24px' },
+] as const
+
+export const HOME_SECTIONS_CONFIG = [
+  { id: 'hero',       label: 'Hero (banner principal)' },
+  { id: 'trust_bar',  label: 'Barra de confianza' },
+  { id: 'categories', label: 'Categorías' },
+  { id: 'featured',   label: 'Productos destacados' },
+  { id: 'promo',      label: 'Banner promocional' },
+  { id: 'brands',     label: 'Marcas' },
+] as const
