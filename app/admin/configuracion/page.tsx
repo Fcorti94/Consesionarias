@@ -4,6 +4,7 @@ import ConfigSubmitButton from './ConfigSubmitButton'
 import CategoriesEditor from './CategoriesEditor'
 import SectionOrderEditor from './SectionOrderEditor'
 import StyledTextField from '@/components/StyledTextField'
+import NavLinksEditor from '@/components/NavLinksEditor'
 import DarkColorPicker from '@/components/DarkColorPicker'
 import ImageInput from '@/components/ImageInput'
 import {
@@ -12,6 +13,7 @@ import {
   DEFAULT_BRANDS,
   DEFAULT_CATEGORIES,
   DEFAULT_SECTION_ORDER,
+  DEFAULT_NAV_LINKS,
 } from '@/lib/types'
 
 export default async function ConfiguracionPage() {
@@ -46,6 +48,11 @@ export default async function ConfiguracionPage() {
       </div>
 
       <ConfigFormWrapper>
+
+        {/* ── Navegación ── */}
+        <Section title="Barra de navegación" hint="Editá los links del menú: nombre, URL, orden y visibilidad. El ítem 'Categorías' siempre despliega el menú de categorías.">
+          <NavLinksEditor defaultValue={config.nav_links ?? DEFAULT_NAV_LINKS} />
+        </Section>
 
         {/* ── Orden y visibilidad de secciones ── */}
         <SectionOrderEditor

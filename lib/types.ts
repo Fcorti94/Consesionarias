@@ -120,6 +120,7 @@ export interface SiteConfig {
   section_styles: Record<string, SectionStyle>
   categories_title: string
   categories_subtitle: string
+  nav_links: NavLink[]
   updated_at: string
 }
 
@@ -221,6 +222,20 @@ export const DEFAULT_FAQ_ITEMS: FaqItem[] = [
   { group: 'Productos', question: '¿Cómo sé si el repuesto es para mi auto?', answer: 'Podés consultarnos por WhatsApp indicando marca, modelo y año de tu vehículo.' },
 ]
 
+export interface NavLink {
+  label:   string
+  href:    string
+  enabled: boolean
+}
+
+export const DEFAULT_NAV_LINKS: NavLink[] = [
+  { label: 'Inicio',               href: '/',                   enabled: true },
+  { label: 'Categorías',           href: '__categories__',      enabled: true },
+  { label: 'Todos los productos',  href: '/productos',          enabled: true },
+  { label: 'Oportunidades',        href: '/productos?oferta=1', enabled: true },
+  { label: 'Preguntas frecuentes', href: '/faq',                enabled: true },
+]
+
 export const DEFAULT_CONFIG: SiteConfig = {
   id: 1,
   brand_name:          'Mi Tienda',
@@ -267,6 +282,7 @@ export const DEFAULT_CONFIG: SiteConfig = {
   section_styles:   {},
   categories_title:    'Encontrá lo que necesitás',
   categories_subtitle: 'Navegá por categoría y encontrá el repuesto exacto',
+  nav_links:           DEFAULT_NAV_LINKS,
   updated_at: new Date().toISOString(),
 }
 

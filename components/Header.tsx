@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCart } from './CartContext'
-import type { ConfigCategory } from '@/lib/types'
+import type { ConfigCategory, NavLink } from '@/lib/types'
+import { DEFAULT_NAV_LINKS } from '@/lib/types'
 import CartSidebar from './CartSidebar'
 
 interface HeaderProps {
@@ -17,6 +18,7 @@ interface HeaderProps {
   shippingFreeFrom?: number
   categories?:       ConfigCategory[]
   showCart?:         boolean
+  navLinks?:         NavLink[]
 }
 
 export default function Header({
@@ -29,6 +31,7 @@ export default function Header({
   shippingFreeFrom = 50000,
   categories       = [],
   showCart         = true,
+  navLinks         = DEFAULT_NAV_LINKS,
 }: HeaderProps) {
   const { count } = useCart()
   const [cartOpen, setCartOpen]   = useState(false)
@@ -233,84 +236,63 @@ export default function Header({
         {/* ── Nav ── */}
         <nav className={`border-t border-slate-100 ${menuOpen ? 'block' : 'hidden md:block'}`}>
           <div className="max-w-7xl mx-auto px-4 py-1 flex flex-col md:flex-row md:items-center md:justify-between">
-
-            <Link
-              href="/"
-              onClick={() => setMenuOpen(false)}
-              className="px-3 py-3 md:py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition border-b border-slate-50 md:border-none"
-            >
-              Inicio
-            </Link>
-
-            {/* Categorías — CSS hover en desktop, click en mobile */}
-            <div className="nav-dropdown md:relative">
-              <button
-                onClick={() => setCatOpen(!catOpen)}
-                className="w-full md:w-auto flex items-center justify-between md:justify-start gap-1 px-3 py-3 md:py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition border-b border-slate-50 md:border-none"
-              >
-                Categorías
-                <svg
-                  width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                  className={`transition-transform duration-200 ${catOpen ? 'rotate-180' : ''}`}
+            {navLinks.filter(l => l.enabled).map((link) =>
+              link.href === '__categories__' ? (
+                /* Categorías dropdown */
+                <div key="__categories__" className="nav-dropdown md:relative">
+                  <button
+                    onClick={() => setCatOpen(!catOpen)}
+                    className="w-full md:w-auto flex items-center justify-between md:justify-start gap-1 px-3 py-3 md:py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition border-b border-slate-50 md:border-none"
+                  >
+                    {link.label}
+                    <svg
+                      width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                      className={`transition-transform duration-200 ${catOpen ? 'rotate-180' : ''}`}
+                    >
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                  {catOpen && (
+                    <div className="md:hidden grid grid-cols-2 gap-0.5 px-2 pb-2 bg-slate-50 rounded-xl mx-2 mb-1">
+                      {categories.map((cat) => (
+                        <Link
+                          key={cat.slug}
+                          href={`/productos?categoria=${cat.slug}`}
+                          onClick={() => { setMenuOpen(false); setCatOpen(false) }}
+                          className="px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-white hover:text-slate-900 transition font-medium"
+                        >
+                          {cat.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                  <div className="nav-dropdown-menu absolute top-full left-0 pt-2 z-50">
+                    <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-2 w-56">
+                      {categories.map((cat) => (
+                        <Link
+                          key={cat.slug}
+                          href={`/productos?categoria=${cat.slug}`}
+                          className="block px-3 py-2 rounded-xl text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition font-medium"
+                        >
+                          {cat.label}
+                          {cat.sub && <span className="block text-xs text-slate-400 font-normal">{cat.sub}</span>}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Link normal */
+                <Link
+                  key={link.href + link.label}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="px-3 py-3 md:py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition border-b border-slate-50 md:border-none"
                 >
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
-              </button>
-
-              {/* Mobile: lista inline */}
-              {catOpen && (
-                <div className="md:hidden grid grid-cols-2 gap-0.5 px-2 pb-2 bg-slate-50 rounded-xl mx-2 mb-1">
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat.slug}
-                      href={`/productos?categoria=${cat.slug}`}
-                      onClick={() => { setMenuOpen(false); setCatOpen(false) }}
-                      className="px-3 py-2.5 rounded-lg text-sm text-slate-600 hover:bg-white hover:text-slate-900 transition font-medium"
-                    >
-                      {cat.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-
-              {/* Desktop: dropdown CSS hover */}
-              <div className="nav-dropdown-menu absolute top-full left-0 pt-2 z-50">
-                <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-2 w-56">
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat.slug}
-                      href={`/productos?categoria=${cat.slug}`}
-                      className="block px-3 py-2 rounded-xl text-sm text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition font-medium"
-                    >
-                      {cat.label}
-                      {cat.sub && <span className="block text-xs text-slate-400 font-normal">{cat.sub}</span>}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <Link
-              href="/productos"
-              onClick={() => setMenuOpen(false)}
-              className="px-3 py-3 md:py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition border-b border-slate-50 md:border-none"
-            >
-              Todos los productos
-            </Link>
-            <Link
-              href="/productos?oferta=1"
-              onClick={() => setMenuOpen(false)}
-              className="px-3 py-3 md:py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition border-b border-slate-50 md:border-none"
-            >
-              Oportunidades
-            </Link>
-            <Link
-              href="/faq"
-              onClick={() => setMenuOpen(false)}
-              className="px-3 py-3 md:py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition border-b border-slate-50 md:border-none"
-            >
-              Preguntas frecuentes
-            </Link>
+                  {link.label}
+                </Link>
+              )
+            )}
           </div>
         </nav>
       </header>

@@ -10,7 +10,8 @@ import {
   DEFAULT_FAQ_ITEMS,
   DEFAULT_SECTION_ORDER,
 } from '@/lib/types'
-import type { SiteConfig, FaqItem, SectionStyle } from '@/lib/types'
+import type { SiteConfig, FaqItem, SectionStyle, NavLink } from '@/lib/types'
+import { DEFAULT_NAV_LINKS } from '@/lib/types'
 import { revalidatePath } from 'next/cache'
 
 export async function getSiteConfig(): Promise<SiteConfig> {
@@ -41,6 +42,7 @@ export async function getSiteConfig(): Promise<SiteConfig> {
       section_styles: (data.section_styles && typeof data.section_styles === 'object' && !Array.isArray(data.section_styles))
         ? data.section_styles as Record<string, SectionStyle>
         : {},
+      nav_links: Array.isArray(data.nav_links) ? data.nav_links as NavLink[] : DEFAULT_NAV_LINKS,
     }
   } catch {
     return DEFAULT_CONFIG
@@ -103,6 +105,13 @@ export async function updateSiteConfig(formData: FormData) {
       footer_text:         formData.get('footer_text') as string,
       categories_title:    formData.get('categories_title') as string,
       categories_subtitle: formData.get('categories_subtitle') as string,
+      nav_links: (() => {
+        try {
+          const raw = formData.get('nav_links') as string
+          const parsed = JSON.parse(raw)
+          return Array.isArray(parsed) ? parsed : DEFAULT_NAV_LINKS
+        } catch { return DEFAULT_NAV_LINKS }
+      })(),
       dark_color:          (formData.get('dark_color') as string) ?? '',
       show_hero:        formData.get('show_hero') === 'on',
       show_trust_bar:   formData.get('show_trust_bar') === 'on',
