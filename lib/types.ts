@@ -118,6 +118,8 @@ export interface SiteConfig {
   show_cart: boolean
   section_order:  string[]
   section_styles: Record<string, SectionStyle>
+  categories_title: string
+  categories_subtitle: string
   updated_at: string
 }
 
@@ -263,6 +265,8 @@ export const DEFAULT_CONFIG: SiteConfig = {
   show_cart:              true,
   section_order:    ['brands', 'promo', 'hero', 'trust_bar', 'categories', 'featured'],
   section_styles:   {},
+  categories_title:    'Encontrá lo que necesitás',
+  categories_subtitle: 'Navegá por categoría y encontrá el repuesto exacto',
   updated_at: new Date().toISOString(),
 }
 

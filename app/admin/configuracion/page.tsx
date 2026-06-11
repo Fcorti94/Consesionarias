@@ -218,6 +218,8 @@ export default async function ConfiguracionPage() {
           title="Categorías"
           hint="Creá, editá o eliminá las categorías. El slug se genera automáticamente del nombre y se usa en la URL."
         >
+          <StyledTextField label="Título de la sección" name="categories_title" defaultValue={config.categories_title} defaultStyle={config.section_styles?.['categories_title']} placeholder="Encontrá lo que necesitás" />
+          <StyledTextField label="Subtítulo" name="categories_subtitle" defaultValue={config.categories_subtitle} defaultStyle={config.section_styles?.['categories_subtitle']} placeholder="Navegá por categoría y encontrá el repuesto exacto" />
           <CategoriesEditor initialCategories={categories} />
         </Section>
 

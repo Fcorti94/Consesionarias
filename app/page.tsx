@@ -210,8 +210,8 @@ export default async function HomePage() {
           <section key="categories" className="max-w-7xl mx-auto px-4 py-14" style={ss('categories')}>
             <div className="flex items-end justify-between mb-8">
               <div>
-                <h2 className="text-2xl md:text-3xl font-black text-slate-900">Encontrá lo que necesitás</h2>
-                <p className="text-slate-500 mt-1">Navegá por categoría y encontrá el repuesto exacto</p>
+                <h2 className="text-2xl md:text-3xl font-black text-slate-900" style={ts('categories_title')}>{config.categories_title || 'Encontrá lo que necesitás'}</h2>
+                <p className="text-slate-500 mt-1" style={ts('categories_subtitle')}>{config.categories_subtitle || 'Navegá por categoría y encontrá el repuesto exacto'}</p>
               </div>
               <Link href="/productos" className="hidden sm:block text-sm font-semibold hover:underline" style={{ color: 'var(--primary)' }}>
                 Ver todo →

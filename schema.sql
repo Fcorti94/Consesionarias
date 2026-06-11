@@ -95,6 +95,8 @@ ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_quantity_selector BOOLEAN 
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS show_cart             BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS promo_badge_text      TEXT    NOT NULL DEFAULT 'Oferta especial';
 ALTER TABLE site_config ADD COLUMN IF NOT EXISTS section_styles        JSONB            DEFAULT '{}';
+ALTER TABLE site_config ADD COLUMN IF NOT EXISTS categories_title      TEXT NOT NULL DEFAULT 'Encontrá lo que necesitás';
+ALTER TABLE site_config ADD COLUMN IF NOT EXISTS categories_subtitle   TEXT NOT NULL DEFAULT 'Navegá por categoría y encontrá el repuesto exacto';
 
 -- Insertar fila por defecto si no existe
 INSERT INTO site_config (id) VALUES (1) ON CONFLICT (id) DO NOTHING;

@@ -101,6 +101,8 @@ export async function updateSiteConfig(formData: FormData) {
       shipping_free_from:  parseInt(formData.get('shipping_free_from') as string) || 0,
       installments:        parseInt(formData.get('installments') as string) || 12,
       footer_text:         formData.get('footer_text') as string,
+      categories_title:    formData.get('categories_title') as string,
+      categories_subtitle: formData.get('categories_subtitle') as string,
       dark_color:          (formData.get('dark_color') as string) ?? '',
       show_hero:        formData.get('show_hero') === 'on',
       show_trust_bar:   formData.get('show_trust_bar') === 'on',
