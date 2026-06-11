@@ -3,7 +3,7 @@ import ConfigFormWrapper from './ConfigFormWrapper'
 import ConfigSubmitButton from './ConfigSubmitButton'
 import CategoriesEditor from './CategoriesEditor'
 import SectionOrderEditor from './SectionOrderEditor'
-import SectionStylesEditor from '@/components/SectionStylesEditor'
+import StyledTextField from '@/components/StyledTextField'
 import DarkColorPicker from '@/components/DarkColorPicker'
 import ImageInput from '@/components/ImageInput'
 import {
@@ -53,16 +53,11 @@ export default async function ConfiguracionPage() {
           initialVisibility={sectionVisibility}
         />
 
-        {/* ── Tipografía y colores por sección ── */}
-        <Section title="Tipografía y colores por sección" hint="Personalizá la fuente, tamaño y colores de cada sección de la página principal. Los cambios se guardan junto con el resto de la configuración.">
-          <SectionStylesEditor defaultValue={config.section_styles ?? {}} />
-        </Section>
-
         {/* ── Marca ── */}
         <Section title="Marca">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Nombre de la marca *" name="brand_name" defaultValue={config.brand_name} required />
-            <Field label="Tagline" name="brand_tagline" defaultValue={config.brand_tagline} placeholder="Tu tienda de confianza" />
+            <StyledTextField label="Tagline" name="brand_tagline" defaultValue={config.brand_tagline} defaultStyle={config.section_styles?.['brand_tagline']} placeholder="Tu tienda de confianza" />
           </div>
           <ImageInput
             name="brand_logo_url"
@@ -70,7 +65,7 @@ export default async function ConfiguracionPage() {
             label="Logo de la marca"
             placeholder="https://... (.png, .svg, .webp)"
           />
-          <Field label="Texto del footer" name="footer_text" defaultValue={config.footer_text} placeholder="Repuestos y accesorios de calidad." />
+          <StyledTextField label="Texto del footer" name="footer_text" defaultValue={config.footer_text} defaultStyle={config.section_styles?.['footer_text']} placeholder="Repuestos y accesorios de calidad." />
         </Section>
 
         {/* ── Colores ── */}
@@ -154,10 +149,10 @@ export default async function ConfiguracionPage() {
           hint="Sección con fondo oscuro e imagen. Aparece entre los productos destacados y las marcas."
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Texto del badge (ej: Oferta especial, Novedad)" name="promo_badge_text" defaultValue={config.promo_badge_text} placeholder="Oferta especial" />
+            <StyledTextField label="Texto del badge (ej: Oferta especial, Novedad)" name="promo_badge_text" defaultValue={config.promo_badge_text} defaultStyle={config.section_styles?.['promo_badge_text']} placeholder="Oferta especial" />
             <div />
-            <Field label="Título"          name="promo_title"     defaultValue={config.promo_title}     placeholder="Hasta 30% OFF en frenos" />
-            <Field label="Subtítulo"       name="promo_subtitle"  defaultValue={config.promo_subtitle}  placeholder="Por tiempo limitado." />
+            <StyledTextField label="Título"    name="promo_title"    defaultValue={config.promo_title}    defaultStyle={config.section_styles?.['promo_title']}    placeholder="Hasta 30% OFF en frenos" />
+            <StyledTextField label="Subtítulo" name="promo_subtitle" defaultValue={config.promo_subtitle} defaultStyle={config.section_styles?.['promo_subtitle']} placeholder="Por tiempo limitado." />
             <ImageInput name="promo_image_url" defaultValue={config.promo_image_url} label="Imagen de fondo" placeholder="https://..." />
             <Field label="Texto del botón" name="promo_cta_text"  defaultValue={config.promo_cta_text}  placeholder="Aprovechar oferta" />
             <Field
@@ -175,10 +170,10 @@ export default async function ConfiguracionPage() {
           title="Hero principal"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Título principal" name="hero_title"      defaultValue={config.hero_title}      placeholder="Todo lo que necesitás" />
-            <Field label="Texto del badge"  name="hero_badge_text" defaultValue={config.hero_badge_text} placeholder="⚡ Envíos en 24–48 hs" />
+            <StyledTextField label="Título principal" name="hero_title"      defaultValue={config.hero_title}      defaultStyle={config.section_styles?.['hero_title']}      placeholder="Todo lo que necesitás" />
+            <StyledTextField label="Texto del badge"  name="hero_badge_text" defaultValue={config.hero_badge_text} defaultStyle={config.section_styles?.['hero_badge_text']} placeholder="⚡ Envíos en 24–48 hs" />
           </div>
-          <Field label="Subtítulo"          name="hero_subtitle"   defaultValue={config.hero_subtitle}   placeholder="Los mejores productos al mejor precio." />
+          <StyledTextField label="Subtítulo" name="hero_subtitle" defaultValue={config.hero_subtitle} defaultStyle={config.section_styles?.['hero_subtitle']} placeholder="Los mejores productos al mejor precio." />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Texto botón CTA"  name="hero_cta_text"   defaultValue={config.hero_cta_text}   placeholder="Ver todos los productos" />
           </div>

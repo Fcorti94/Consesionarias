@@ -122,14 +122,19 @@ export async function updateSiteConfig(formData: FormData) {
         }
       })(),
       section_styles: (() => {
-        try {
-          const raw = formData.get('section_styles') as string
-          if (!raw) return {}
-          const parsed = JSON.parse(raw)
-          return (typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {}
-        } catch {
-          return {}
+        const styles: Record<string, SectionStyle> = {}
+        for (const [key, value] of formData.entries()) {
+          if (key.startsWith('ts_') && typeof value === 'string' && value) {
+            try {
+              const fieldName = key.slice(3)
+              const parsed = JSON.parse(value)
+              if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                styles[fieldName] = parsed as SectionStyle
+              }
+            } catch {}
+          }
         }
+        return styles
       })(),
       updated_at:          new Date().toISOString(),
     })

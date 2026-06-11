@@ -79,6 +79,15 @@ export default async function HomePage() {
     }
   }
 
+  function ts(field: string): React.CSSProperties {
+    const s = sectionStyles[field] ?? {}
+    return {
+      ...(s.fontFamily ? { fontFamily: `'${s.fontFamily}', sans-serif` } : {}),
+      ...(s.fontSize   ? { fontSize: s.fontSize } : {}),
+      ...(s.textColor  ? { color: s.textColor } : {}),
+    }
+  }
+
   function renderSection(id: string) {
     switch (id) {
       case 'brands':
@@ -100,13 +109,13 @@ export default async function HomePage() {
               <img src={promoImage} alt="Promo" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-900/70 to-transparent" />
               <div className="relative px-6 md:px-14 py-10 md:py-20 max-w-lg">
-                <span className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full text-white mb-4" style={{ backgroundColor: 'var(--primary)' }}>
+                <span className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full text-white mb-4" style={{ backgroundColor: 'var(--primary)', ...ts('promo_badge_text') }}>
                   {config.promo_badge_text || 'Oferta especial'}
                 </span>
-                <h2 className="text-3xl md:text-4xl font-black text-white mb-3 leading-tight">
+                <h2 className="text-3xl md:text-4xl font-black text-white mb-3 leading-tight" style={ts('promo_title')}>
                   {config.promo_title}
                 </h2>
-                <p className="text-slate-400 mb-7">{config.promo_subtitle}</p>
+                <p className="text-slate-400 mb-7" style={ts('promo_subtitle')}>{config.promo_subtitle}</p>
                 <Link
                   href={config.promo_cta_link || '/productos'}
                   className="inline-block font-bold px-7 py-3.5 rounded-xl text-white transition-opacity hover:opacity-90"
@@ -129,15 +138,15 @@ export default async function HomePage() {
             <div className="relative max-w-7xl mx-auto px-4 py-12 md:py-32 w-full">
               <div className="max-w-2xl">
                 {config.hero_badge_text && (
-                  <div className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 text-white border border-white/20 bg-white/10 backdrop-blur-sm">
+                  <div className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 text-white border border-white/20 bg-white/10 backdrop-blur-sm" style={ts('hero_badge_text')}>
                     <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                     {config.hero_badge_text}
                   </div>
                 )}
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight tracking-tight mb-5">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight tracking-tight mb-5" style={ts('hero_title')}>
                   {config.hero_title}
                 </h1>
-                <p className="text-lg text-slate-300 mb-8 leading-relaxed max-w-xl">
+                <p className="text-lg text-slate-300 mb-8 leading-relaxed max-w-xl" style={ts('hero_subtitle')}>
                   {config.hero_subtitle}
                 </p>
                 <div className="flex flex-wrap gap-3 mb-10">
@@ -290,11 +299,11 @@ export default async function HomePage() {
                 <div>
                   <div className="font-black text-white leading-tight">{config.brand_name}</div>
                   {config.brand_tagline && (
-                    <div className="text-slate-400 text-xs mt-0.5">{config.brand_tagline}</div>
+                    <div className="text-slate-400 text-xs mt-0.5" style={ts('brand_tagline')}>{config.brand_tagline}</div>
                   )}
                 </div>
               </div>
-              <p className="text-sm leading-relaxed mb-5">
+              <p className="text-sm leading-relaxed mb-5" style={ts('footer_text')}>
                 {config.footer_text || ''}
               </p>
               <div className="flex gap-3">

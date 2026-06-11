@@ -301,12 +301,17 @@ export const GOOGLE_FONTS = [
 export type GoogleFont = typeof GOOGLE_FONTS[number]
 
 export const FONT_SIZES = [
-  { label: 'Muy pequeño (12px)', value: '12px' },
-  { label: 'Pequeño (14px)',     value: '14px' },
-  { label: 'Normal (16px)',      value: '16px' },
-  { label: 'Grande (18px)',      value: '18px' },
-  { label: 'Muy grande (20px)',  value: '20px' },
-  { label: 'Extra grande (24px)', value: '24px' },
+  { label: 'XS — 12px',   value: '12px' },
+  { label: 'SM — 14px',   value: '14px' },
+  { label: 'Base — 16px', value: '16px' },
+  { label: 'LG — 18px',   value: '18px' },
+  { label: 'XL — 20px',   value: '20px' },
+  { label: '2XL — 24px',  value: '24px' },
+  { label: '3XL — 30px',  value: '30px' },
+  { label: '4XL — 36px',  value: '36px' },
+  { label: '5XL — 48px',  value: '48px' },
+  { label: '6XL — 60px',  value: '60px' },
+  { label: '7XL — 72px',  value: '72px' },
 ] as const
 
 export const HOME_SECTIONS_CONFIG = [
