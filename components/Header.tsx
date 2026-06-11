@@ -136,7 +136,7 @@ export default function Header({
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="flex-1 px-4 py-2.5 text-sm outline-none bg-transparent placeholder:text-slate-400"
-                  placeholder="Buscar por marca, modelo, repuesto..."
+                  placeholder="Buscar productos..."
                 />
                 <button type="submit" className="m-1 px-4 py-2 rounded-full text-white text-sm font-medium flex items-center gap-1.5 transition-opacity hover:opacity-90" style={{ backgroundColor: 'var(--primary)' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -175,7 +175,7 @@ export default function Header({
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="flex-1 px-5 py-2.5 text-sm outline-none bg-transparent placeholder:text-slate-400"
-                  placeholder="Buscar por marca, modelo, repuesto..."
+                  placeholder="Buscar productos..."
                 />
                 <button type="submit" className="m-1 px-4 py-2 rounded-full text-white text-sm font-medium flex items-center gap-1.5 transition-opacity hover:opacity-90" style={{ backgroundColor: 'var(--primary)' }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
