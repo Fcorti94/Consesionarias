@@ -136,6 +136,12 @@ ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "admin_all_orders" ON orders
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+-- Decrementa stock de forma atómica. Nunca baja de 0.
+CREATE OR REPLACE FUNCTION decrement_product_stock(p_id UUID, p_qty INTEGER)
+RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
+  UPDATE products SET stock = GREATEST(0, stock - p_qty), updated_at = now() WHERE id = p_id;
+$$;
+
 
 -- ============================================================
 -- 4. ATTRIBUTE DEFINITIONS

@@ -44,14 +44,14 @@ export async function POST(req: NextRequest) {
     // Look up existing order by payment ID first, then by preference ID (pre-inserted at checkout)
     let { data: existing } = await supabase
       .from('orders')
-      .select('id, buyer_email, status')
+      .select('id, buyer_email, status, items')
       .eq('mp_payment_id', paymentId)
       .maybeSingle()
 
     if (!existing && preferenceId) {
       const { data } = await supabase
         .from('orders')
-        .select('id, buyer_email, status')
+        .select('id, buyer_email, status, items')
         .eq('mp_preference_id', preferenceId)
         .maybeSingle()
       existing = data
@@ -90,6 +90,14 @@ export async function POST(req: NextRequest) {
     const wasAlreadyApproved = existing?.status === 'approved'
 
     if (status === 'approved' && !wasAlreadyApproved) {
+      // Decrement stock atomically for each purchased item
+      const itemsToDecrement = (existing?.items ?? items) as { id: string; quantity: number }[]
+      await Promise.all(
+        itemsToDecrement
+          .filter(i => i.id)
+          .map(i => supabase.rpc('decrement_product_stock', { p_id: i.id, p_qty: i.quantity }))
+      )
+
       try {
         const config = await getSiteConfig()
         const ses = buildSesClient()
