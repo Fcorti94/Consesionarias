@@ -6,14 +6,15 @@ import { processPayment } from '@/lib/process-payment'
 export default async function CheckoutSuccessPage({
   searchParams,
 }: {
-  searchParams: Promise<{ payment_id?: string; status?: string }>
+  searchParams: Promise<{ payment_id?: string; preference_id?: string; status?: string }>
 }) {
-  const params    = await searchParams
-  const paymentId = params.payment_id
+  const params       = await searchParams
+  const paymentId    = params.payment_id
+  const preferenceId = params.preference_id
 
   if (paymentId) {
     try {
-      await processPayment(paymentId)
+      await processPayment(paymentId, preferenceId)
     } catch (err) {
       console.error('[CheckoutSuccess] processPayment failed:', err)
     }

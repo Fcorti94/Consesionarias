@@ -7,7 +7,7 @@ import { getSiteConfig } from '@/lib/config-actions'
 
 /* ── Entry point ── */
 
-export async function processPayment(paymentId: string) {
+export async function processPayment(paymentId: string, hintPreferenceId?: string) {
   const supabase = createAdminClient()
 
   const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! })
@@ -16,7 +16,8 @@ export async function processPayment(paymentId: string) {
 
   const status       = payment.status ?? 'pending'
   const p            = payment as unknown as Record<string, unknown>
-  const preferenceId = String(p.preference_id ?? '')
+  // Prefer the preference_id from the URL param (reliable) over the payment object field
+  const preferenceId = hintPreferenceId || String(p.preference_id ?? '')
   const paymentMethod = String(p.payment_method_id ?? '')
   const installments  = Number(p.installments ?? 1)
   const total         = Number(payment.transaction_amount ?? 0)
@@ -52,6 +53,8 @@ export async function processPayment(paymentId: string) {
 
   const confirmedBuyerEmail = existing?.buyer_email ?? buyerEmail
   const wasAlreadyApproved  = existing?.status === 'approved'
+
+  console.log('[processPayment] paymentId:', paymentId, '| preferenceId:', preferenceId, '| existingId:', existing?.id ?? 'NOT FOUND', '| existingEmail:', existing?.buyer_email ?? 'none', '| status:', status)
 
   // Upsert order
   if (existing) {
@@ -157,16 +160,16 @@ function itemsTable(items: { title: string; quantity: number; unit_price: number
 
 type EmailData = { paymentId: string; orderNumber: number | null; buyerName: string | null; buyerSurname: string | null; buyerEmail: string | null; items: { title: string; quantity: number; unit_price: number }[]; total: number; paymentMethod: string; installments: number }
 
-function wrapper(color: string, content: string) {
+function wrapper(color: string, brandName: string, content: string) {
   return `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:580px;margin:0 auto;color:#1e293b;background:#f8fafc;padding:24px">
-    <div style="background:${color};padding:20px 28px;border-radius:12px 12px 0 0"><h1 style="color:white;margin:0;font-size:18px;font-weight:700">EcoAutoparts</h1></div>
+    <div style="background:${color};padding:20px 28px;border-radius:12px 12px 0 0"><h1 style="color:white;margin:0;font-size:18px;font-weight:700">${brandName}</h1></div>
     <div style="background:#fff;padding:28px;border-radius:0 0 12px 12px;border:1px solid #e2e8f0;border-top:none">${content}</div>
     <p style="text-align:center;font-size:11px;color:#94a3b8;margin-top:20px">Este es un mensaje automático, por favor no respondas a este email.</p>
   </div>`
 }
 
 function buildStoreHtml(d: EmailData, config: { primary_color: string; brand_name: string }) {
-  return wrapper(config.primary_color, `
+  return wrapper(config.primary_color, config.brand_name, `
     <h2 style="margin:0 0 20px;font-size:20px">🛒 Nuevo pedido recibido</h2>
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:14px;color:#166534">
       ✅ Pago aprobado${d.orderNumber ? ` · Pedido <strong>${fmtNum(d.orderNumber)}</strong>` : ` · MP <strong>#${d.paymentId}</strong>`}
@@ -187,7 +190,7 @@ function buildBuyerHtml(d: EmailData, config: { primary_color: string; brand_nam
   const contactLine = config.whatsapp
     ? `<a href="https://wa.me/${config.whatsapp.replace(/\D/g, '')}" style="color:${config.primary_color}">WhatsApp</a>`
     : config.email ? `<a href="mailto:${config.email}" style="color:${config.primary_color}">${config.email}</a>` : ''
-  return wrapper(config.primary_color, `
+  return wrapper(config.primary_color, config.brand_name, `
     <h2 style="margin:0 0 8px;font-size:20px">¡Gracias por tu compra!</h2>
     <p style="color:#64748b;margin:0 0 24px;font-size:15px">Hola${d.buyerName ? ` ${d.buyerName}` : ''}, tu pago fue procesado correctamente.</p>
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:14px;color:#166534">
