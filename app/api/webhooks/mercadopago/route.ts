@@ -7,6 +7,7 @@ import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
+    console.log('[MP Webhook] received:', JSON.stringify({ type: body.type, id: body.data?.id }))
 
     if (body.type !== 'payment' || !body.data?.id) {
       return NextResponse.json({ ok: true })
@@ -88,6 +89,7 @@ export async function POST(req: NextRequest) {
     }
 
     const wasAlreadyApproved = existing?.status === 'approved'
+    console.log('[MP Webhook] payment:', paymentId, '| status:', status, '| wasAlreadyApproved:', wasAlreadyApproved, '| existingId:', existing?.id ?? 'none')
 
     if (status === 'approved' && !wasAlreadyApproved) {
       // Decrement stock atomically for each purchased item
@@ -124,8 +126,7 @@ export async function POST(req: NextRequest) {
           }
         }
       } catch (emailErr) {
-        // Email failure must not block order processing
-        console.error('[Webhook MP] SES error:', emailErr)
+        console.error('[MP Webhook] SES error:', emailErr)
       }
     }
 
