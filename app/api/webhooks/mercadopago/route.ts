@@ -45,14 +45,14 @@ export async function POST(req: NextRequest) {
     // Look up existing order by payment ID first, then by preference ID (pre-inserted at checkout)
     let { data: existing } = await supabase
       .from('orders')
-      .select('id, buyer_email, status, items')
+      .select('id, buyer_email, status, items, order_number')
       .eq('mp_payment_id', paymentId)
       .maybeSingle()
 
     if (!existing && preferenceId) {
       const { data } = await supabase
         .from('orders')
-        .select('id, buyer_email, status, items')
+        .select('id, buyer_email, status, items, order_number')
         .eq('mp_preference_id', preferenceId)
         .maybeSingle()
       existing = data
@@ -104,15 +104,16 @@ export async function POST(req: NextRequest) {
         const config = await getSiteConfig()
         const ses = buildSesClient()
         if (ses) {
+          const orderNumber = existing?.order_number ?? null
           const emailData = {
-            paymentId, buyerName, buyerSurname, buyerEmail,
+            paymentId, orderNumber, buyerName, buyerSurname, buyerEmail,
             items, total, paymentMethod, installments,
           }
           if (config.email) {
             await sendEmail(ses, {
               from:    buildFromAddress(config.brand_name),
               to:      config.email,
-              subject: buildStoreSubject(total, buyerName, buyerSurname),
+              subject: buildStoreSubject(orderNumber, total, buyerName, buyerSurname),
               html:    buildStoreHtml(emailData, config),
             })
           }
@@ -120,7 +121,7 @@ export async function POST(req: NextRequest) {
             await sendEmail(ses, {
               from:    buildFromAddress(config.brand_name),
               to:      confirmedBuyerEmail,
-              subject: `Tu pedido en ${config.brand_name} fue confirmado`,
+              subject: `Tu pedido ${fmtOrderNumber(orderNumber)} en ${config.brand_name} fue confirmado`.trim(),
               html:    buildBuyerHtml({ ...emailData, buyerEmail: confirmedBuyerEmail }, config),
             })
           }
@@ -176,8 +177,9 @@ function fmt(n: number) {
   return n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })
 }
 
-function buildStoreSubject(total: number, name: string | null, surname: string | null) {
-  return `Nuevo pedido — ${fmt(total)} — ${[name, surname].filter(Boolean).join(' ')}`.trim()
+function buildStoreSubject(orderNumber: number | null, total: number, name: string | null, surname: string | null) {
+  const num = fmtOrderNumber(orderNumber)
+  return `Nuevo pedido ${num} — ${fmt(total)} — ${[name, surname].filter(Boolean).join(' ')}`.trim()
 }
 
 function itemsTable(items: { title: string; quantity: number; unit_price: number }[]) {
@@ -232,6 +234,7 @@ function wrapper(primaryColor: string, content: string) {
 
 type EmailData = {
   paymentId: string
+  orderNumber: number | null
   buyerName: string | null
   buyerSurname: string | null
   buyerEmail: string | null
@@ -241,12 +244,16 @@ type EmailData = {
   installments: number
 }
 
+function fmtOrderNumber(n: number | null) {
+  return n ? `#${String(n).padStart(4, '0')}` : ''
+}
+
 function buildStoreHtml(d: EmailData, config: { primary_color: string; brand_name: string }) {
   const content = `
     <h2 style="margin:0 0 20px;font-size:20px">🛒 Nuevo pedido recibido</h2>
 
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:14px;color:#166534">
-      ✅ Pago aprobado · ID <strong>#${d.paymentId}</strong>
+      ✅ Pago aprobado${d.orderNumber ? ` · Pedido <strong>${fmtOrderNumber(d.orderNumber)}</strong>` : ` · ID <strong>#${d.paymentId}</strong>`}
     </div>
 
     <table style="width:100%;font-size:14px;border-collapse:collapse">
@@ -282,7 +289,7 @@ function buildBuyerHtml(d: EmailData, config: { primary_color: string; brand_nam
     </p>
 
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:14px;color:#166534">
-      ✅ Pago aprobado · ID <strong>#${d.paymentId}</strong>
+      ✅ Pago aprobado${d.orderNumber ? ` · Pedido <strong>${fmtOrderNumber(d.orderNumber)}</strong>` : ''}
     </div>
 
     <p style="font-size:13px;color:#64748b;margin:0 0 4px">Método de pago</p>

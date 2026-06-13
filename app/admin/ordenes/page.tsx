@@ -90,9 +90,14 @@ export default async function OrdenesPage() {
                 return (
                   <tr key={order.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-5 py-4 text-slate-500 text-xs whitespace-nowrap">
+                      {order.order_number && (
+                        <p className="font-bold text-slate-800 text-sm mb-0.5">
+                          #{String(order.order_number).padStart(4, '0')}
+                        </p>
+                      )}
                       {fmtDate(order.created_at)}
                       {order.mp_payment_id && (
-                        <p className="text-slate-300 mt-0.5 font-mono">#{order.mp_payment_id}</p>
+                        <p className="text-slate-300 mt-0.5 font-mono text-[10px]">MP: {order.mp_payment_id}</p>
                       )}
                     </td>
                     <td className="px-5 py-4">
