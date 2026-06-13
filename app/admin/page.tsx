@@ -32,12 +32,25 @@ export default async function AdminPage() {
             {products.length} total · {active} activos · {outOfStock} sin stock
           </p>
         </div>
-        <Link
-          href="/admin/productos/nuevo"
-          className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2.5 rounded-xl transition flex items-center gap-2"
-        >
-          <span>+</span> Nuevo producto
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/productos/importar"
+            className="border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2 text-sm"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Importar CSV
+          </Link>
+          <Link
+            href="/admin/productos/nuevo"
+            className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-5 py-2.5 rounded-xl transition flex items-center gap-2"
+          >
+            <span>+</span> Nuevo producto
+          </Link>
+        </div>
       </div>
 
       {/* Table */}
