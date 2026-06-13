@@ -20,11 +20,11 @@ export async function POST(req: NextRequest) {
 
     const status = payment.status ?? 'pending'
 
-    const payer = payment.payer ?? {}
-    const buyerName    = (payer as Record<string,unknown>).first_name as string ?? null
-    const buyerSurname = (payer as Record<string,unknown>).last_name  as string ?? null
-    const buyerEmail   = (payer as Record<string,unknown>).email       as string ?? null
-    const buyerPhone   = ((payer as Record<string,unknown>).phone as Record<string,unknown>)?.number as string ?? null
+    const payer = (payment.payer ?? {}) as unknown as Record<string, unknown>
+    const buyerName    = (payer.first_name as string)  ?? null
+    const buyerSurname = (payer.last_name  as string)  ?? null
+    const buyerEmail   = (payer.email      as string)  ?? null
+    const buyerPhone   = ((payer.phone as Record<string,unknown>)?.number as string) ?? null
 
     const items = (payment.additional_info?.items ?? []).map((i: Record<string,unknown>) => ({
       id:         String(i.id ?? ''),
@@ -34,9 +34,10 @@ export async function POST(req: NextRequest) {
     }))
 
     const total          = Number(payment.transaction_amount ?? 0)
-    const paymentMethod  = String((payment as Record<string,unknown>).payment_method_id ?? '')
-    const installments   = Number((payment as Record<string,unknown>).installments ?? 1)
-    const preferenceId   = String((payment as Record<string,unknown>).preference_id ?? '')
+    const p              = payment as unknown as Record<string, unknown>
+    const paymentMethod  = String(p.payment_method_id ?? '')
+    const installments   = Number(p.installments ?? 1)
+    const preferenceId   = String(p.preference_id ?? '')
 
     const supabase = await createClient()
 
