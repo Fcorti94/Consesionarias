@@ -2,27 +2,51 @@
 
 import { useState, useRef, useTransition } from 'react'
 import Link from 'next/link'
-import { importProducts, type ProductImportRow } from '@/lib/import-actions'
+import { importProducts, exportProducts, type ProductImportRow, type ImportResult } from '@/lib/import-actions'
 
 /* ── CSV template ── */
 
-const TEMPLATE_HEADER = 'name,category,categories,price,original_price,description,stock,badge,featured,active'
-const TEMPLATE_EXAMPLE = [
-  'Pastillas de freno Brembo,frenos,frenos,15000,20000,Pastillas de alta performance para uso deportivo,10,Oferta,true,true',
-  'Filtro de aceite NGK,filtros,filtros,3500,,Filtro original para motores nafteros,50,,false,true',
-  'Amortiguador Monroe Trasero,suspension,"suspension,motor",28000,35000,,8,,,true',
-].join('\n')
+const KNOWN_COLS = ['name', 'sku', 'category', 'categories', 'price', 'original_price', 'description', 'stock', 'badge', 'featured', 'active'] as const
+const REQUIRED_COLS = ['name', 'category', 'price']
 
-function downloadTemplate() {
-  const csv = `${TEMPLATE_HEADER}\n${TEMPLATE_EXAMPLE}`
-  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+function csvField(v: unknown): string {
+  const s = v == null ? '' : String(v)
+  return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s
+}
+
+function rowsToCsv(rows: ProductImportRow[]): string {
+  const header = KNOWN_COLS.join(',')
+  const lines = rows.map(r => [
+    r.name,
+    r.sku ?? '',
+    r.category,
+    (r.categories ?? []).join(','),
+    r.price,
+    r.original_price ?? '',
+    r.description ?? '',
+    r.stock,
+    r.badge ?? '',
+    r.featured,
+    r.active,
+  ].map(csvField).join(','))
+  return [header, ...lines].join('\n')
+}
+
+function triggerDownload(content: string, filename: string) {
+  const blob = new Blob(['﻿' + content], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = 'plantilla_productos.csv'
+  a.download = filename
   a.click()
   URL.revokeObjectURL(url)
 }
+
+const EMPTY_TEMPLATE_ROWS = [
+  'Pastillas de freno Brembo,BREMBO-001,frenos,frenos,15000,20000,Pastillas de alta performance,10,Oferta,true,true',
+  'Filtro de aceite NGK,NGK-F01,filtros,filtros,3500,,Filtro original para motores nafteros,50,,false,true',
+  'Amortiguador Monroe trasero,,suspension,"suspension,motor",28000,35000,,8,,,true',
+].join('\n')
 
 /* ── CSV parser ── */
 
@@ -58,12 +82,11 @@ interface ParseResult {
   total: number
 }
 
-const REQUIRED_COLS = ['name', 'category', 'price']
-const KNOWN_COLS = ['name', 'category', 'categories', 'price', 'original_price', 'description', 'stock', 'badge', 'featured', 'active']
-
 function parseCSV(text: string): ParseResult {
   const lines = text.trim().split(/\r?\n/).filter(Boolean)
-  if (lines.length < 2) return { rows: [], errors: [{ row: 1, message: 'El archivo está vacío o solo tiene encabezados.' }], total: 0 }
+  if (lines.length < 2) {
+    return { rows: [], errors: [{ row: 1, message: 'El archivo está vacío o solo tiene encabezados.' }], total: 0 }
+  }
 
   const header = parseCSVLine(lines[0]).map(h => h.toLowerCase().trim())
 
@@ -73,7 +96,7 @@ function parseCSV(text: string): ParseResult {
   }
 
   const idx = (col: string) => header.indexOf(col)
-  const get = (row: string[], col: string) => row[idx(col)]?.trim() ?? ''
+  const get = (row: string[], col: string) => (idx(col) >= 0 ? row[idx(col)]?.trim() : '') ?? ''
 
   const rows: ProductImportRow[] = []
   const errors: ParseError[] = []
@@ -84,9 +107,9 @@ function parseCSV(text: string): ParseResult {
 
     const r = parseCSVLine(line)
 
-    const name = get(r, 'name')
-    const category = get(r, 'category')
-    const priceStr = get(r, 'price')
+    const name      = get(r, 'name')
+    const category  = get(r, 'category')
+    const priceStr  = get(r, 'price')
 
     if (!name)     { errors.push({ row: rowNum, message: 'Nombre requerido' }); return }
     if (!category) { errors.push({ row: rowNum, message: 'Categoría requerida' }); return }
@@ -94,9 +117,9 @@ function parseCSV(text: string): ParseResult {
       errors.push({ row: rowNum, message: `Precio inválido: "${priceStr}"` }); return
     }
 
-    const origPriceStr = get(r, 'original_price')
-    if (origPriceStr && isNaN(Number(origPriceStr))) {
-      errors.push({ row: rowNum, message: `Precio original inválido: "${origPriceStr}"` }); return
+    const origStr = get(r, 'original_price')
+    if (origStr && isNaN(Number(origStr))) {
+      errors.push({ row: rowNum, message: `Precio original inválido: "${origStr}"` }); return
     }
 
     const badgeRaw = get(r, 'badge')
@@ -108,14 +131,16 @@ function parseCSV(text: string): ParseResult {
       ? categoriesRaw.split(',').map(s => s.trim()).filter(Boolean)
       : [category]
 
+    const skuRaw = get(r, 'sku')
     const stockStr = get(r, 'stock')
 
     rows.push({
+      sku:            skuRaw || null,
       name,
       category,
       categories,
       price:          Number(priceStr),
-      original_price: origPriceStr ? Number(origPriceStr) : null,
+      original_price: origStr ? Number(origStr) : null,
       description:    get(r, 'description') || null,
       stock:          stockStr ? parseInt(stockStr) : 0,
       badge,
@@ -129,15 +154,28 @@ function parseCSV(text: string): ParseResult {
 
 /* ── Component ── */
 
-type Status = { type: 'success'; inserted: number } | { type: 'error'; message: string } | null
-
 export default function ImportarProductosPage() {
   const fileRef = useRef<HTMLInputElement>(null)
-  const [dragging, setDragging] = useState(false)
-  const [parsed, setParsed] = useState<ParseResult | null>(null)
-  const [filename, setFilename] = useState('')
-  const [status, setStatus] = useState<Status>(null)
-  const [isPending, startTransition] = useTransition()
+  const [dragging, setDragging]       = useState(false)
+  const [parsed, setParsed]           = useState<ParseResult | null>(null)
+  const [filename, setFilename]       = useState('')
+  const [result, setResult]           = useState<ImportResult | null>(null)
+  const [downloading, setDownloading] = useState(false)
+  const [isPending, startTransition]  = useTransition()
+
+  async function handleDownload() {
+    setDownloading(true)
+    try {
+      const rows = await exportProducts()
+      if (rows.length === 0) {
+        triggerDownload(`${KNOWN_COLS.join(',')}\n${EMPTY_TEMPLATE_ROWS}`, 'plantilla_productos.csv')
+      } else {
+        triggerDownload(rowsToCsv(rows), 'productos.csv')
+      }
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   function handleFile(file: File) {
     if (!file.name.endsWith('.csv')) {
@@ -145,12 +183,9 @@ export default function ImportarProductosPage() {
       return
     }
     setFilename(file.name)
-    setStatus(null)
+    setResult(null)
     const reader = new FileReader()
-    reader.onload = e => {
-      const text = e.target?.result as string
-      setParsed(parseCSV(text))
-    }
+    reader.onload = e => setParsed(parseCSV(e.target?.result as string))
     reader.readAsText(file, 'utf-8')
   }
 
@@ -164,19 +199,14 @@ export default function ImportarProductosPage() {
   function handleSubmit() {
     if (!parsed || parsed.rows.length === 0) return
     startTransition(async () => {
-      const result = await importProducts(parsed.rows)
-      if (result.error) {
-        setStatus({ type: 'error', message: result.error })
-      } else {
-        setStatus({ type: 'success', inserted: result.inserted })
-        setParsed(null)
-        setFilename('')
-      }
+      const r = await importProducts(parsed.rows)
+      setResult(r)
+      if (!r.error) { setParsed(null); setFilename('') }
     })
   }
 
-  const hasErrors = parsed && parsed.errors.length > 0
-  const hasRows   = parsed && parsed.rows.length > 0
+  const withSku    = parsed?.rows.filter(r => r.sku).length ?? 0
+  const withoutSku = parsed?.rows.filter(r => !r.sku).length ?? 0
 
   return (
     <div className="p-6 max-w-4xl">
@@ -194,57 +224,66 @@ export default function ImportarProductosPage() {
 
       {/* Step 1 — Template */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-4">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 mb-4">
           <div>
             <h2 className="font-semibold text-slate-700 mb-1">1. Descargá la plantilla</h2>
             <p className="text-sm text-slate-400">
-              Completá la planilla con tus productos. Las columnas requeridas son{' '}
-              <code className="bg-slate-100 px-1 rounded text-xs">name</code>,{' '}
-              <code className="bg-slate-100 px-1 rounded text-xs">category</code> y{' '}
-              <code className="bg-slate-100 px-1 rounded text-xs">price</code>.
+              Completá la planilla con tus productos. Las columnas con{' '}
+              <span className="text-red-400">*</span> son obligatorias.
             </p>
           </div>
           <button
-            onClick={downloadTemplate}
-            className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition"
+            onClick={handleDownload}
+            disabled={downloading}
+            className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition disabled:opacity-60"
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Descargar plantilla .csv
+            {downloading ? (
+              <svg className="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+              </svg>
+            ) : (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            )}
+            {downloading ? 'Descargando...' : 'Descargar productos .csv'}
           </button>
         </div>
 
-        {/* Column reference */}
-        <div className="mt-4 overflow-x-auto">
+        <div className="overflow-x-auto">
           <table className="w-full text-xs border-collapse">
             <thead>
               <tr className="bg-slate-50">
                 {KNOWN_COLS.map(col => (
                   <th key={col} className="px-3 py-2 text-left font-semibold text-slate-500 border border-slate-100 whitespace-nowrap">
-                    {col}
-                    {REQUIRED_COLS.includes(col) && <span className="text-red-400 ml-0.5">*</span>}
+                    {col}{REQUIRED_COLS.includes(col) && <span className="text-red-400 ml-0.5">*</span>}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="px-3 py-2 border border-slate-100 text-slate-400">Pastillas Brembo</td>
-                <td className="px-3 py-2 border border-slate-100 text-slate-400">frenos</td>
-                <td className="px-3 py-2 border border-slate-100 text-slate-400">frenos</td>
-                <td className="px-3 py-2 border border-slate-100 text-slate-400">15000</td>
-                <td className="px-3 py-2 border border-slate-100 text-slate-400">20000</td>
-                <td className="px-3 py-2 border border-slate-100 text-slate-400">Descripción...</td>
-                <td className="px-3 py-2 border border-slate-100 text-slate-400">10</td>
-                <td className="px-3 py-2 border border-slate-100 text-slate-400">Oferta / Nuevo</td>
-                <td className="px-3 py-2 border border-slate-100 text-slate-400">true / false</td>
-                <td className="px-3 py-2 border border-slate-100 text-slate-400">true / false</td>
+              <tr className="text-slate-400">
+                <td className="px-3 py-2 border border-slate-100">Pastillas Brembo</td>
+                <td className="px-3 py-2 border border-slate-100">BREMBO-001</td>
+                <td className="px-3 py-2 border border-slate-100">frenos</td>
+                <td className="px-3 py-2 border border-slate-100">frenos</td>
+                <td className="px-3 py-2 border border-slate-100">15000</td>
+                <td className="px-3 py-2 border border-slate-100">20000</td>
+                <td className="px-3 py-2 border border-slate-100">Descripción...</td>
+                <td className="px-3 py-2 border border-slate-100">10</td>
+                <td className="px-3 py-2 border border-slate-100">Oferta / Nuevo</td>
+                <td className="px-3 py-2 border border-slate-100">true / false</td>
+                <td className="px-3 py-2 border border-slate-100">true / false</td>
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-800">
+          <strong>SKU:</strong> código único por producto (ej: BREMBO-001). Si lo completás, re-subir el CSV
+          actualiza precio, stock y descripción sin duplicar. Si lo dejás vacío, siempre se crea un producto nuevo.
         </div>
       </div>
 
@@ -284,7 +323,7 @@ export default function ImportarProductosPage() {
       </div>
 
       {/* Parse errors */}
-      {hasErrors && (
+      {parsed && parsed.errors.length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-5 mb-4">
           <p className="text-sm font-semibold text-red-700 mb-2">
             {parsed.errors.length} error{parsed.errors.length > 1 ? 'es' : ''} encontrado{parsed.errors.length > 1 ? 's' : ''}
@@ -300,16 +339,32 @@ export default function ImportarProductosPage() {
       )}
 
       {/* Step 3 — Preview & import */}
-      {hasRows && (
+      {parsed && parsed.rows.length > 0 && (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-slate-700">
-              3. Revisá y confirmá la importación
-              <span className="ml-2 text-slate-400 font-normal text-sm">
-                {parsed.rows.length} producto{parsed.rows.length > 1 ? 's' : ''} listos
-                {parsed.errors.length > 0 && ` · ${parsed.errors.length} con errores (se omiten)`}
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="font-semibold text-slate-700">3. Revisá y confirmá</h2>
+          </div>
+
+          {/* Summary chips */}
+          <div className="flex gap-2 mb-4 flex-wrap">
+            <span className="text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-medium">
+              {parsed.rows.length} producto{parsed.rows.length > 1 ? 's' : ''} listos
+            </span>
+            {withSku > 0 && (
+              <span className="text-xs bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full font-medium">
+                {withSku} con SKU → actualizan si ya existen
               </span>
-            </h2>
+            )}
+            {withoutSku > 0 && (
+              <span className="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
+                {withoutSku} sin SKU → siempre nuevos
+              </span>
+            )}
+            {parsed.errors.length > 0 && (
+              <span className="text-xs bg-red-100 text-red-600 px-2.5 py-1 rounded-full font-medium">
+                {parsed.errors.length} con errores (se omiten)
+              </span>
+            )}
           </div>
 
           <div className="overflow-x-auto mb-5">
@@ -317,6 +372,7 @@ export default function ImportarProductosPage() {
               <thead>
                 <tr className="bg-slate-50">
                   <th className="px-3 py-2 text-left font-semibold text-slate-500 border border-slate-100">Nombre</th>
+                  <th className="px-3 py-2 text-left font-semibold text-slate-500 border border-slate-100">SKU</th>
                   <th className="px-3 py-2 text-left font-semibold text-slate-500 border border-slate-100">Categoría</th>
                   <th className="px-3 py-2 text-right font-semibold text-slate-500 border border-slate-100">Precio</th>
                   <th className="px-3 py-2 text-right font-semibold text-slate-500 border border-slate-100">Stock</th>
@@ -327,7 +383,8 @@ export default function ImportarProductosPage() {
               <tbody>
                 {parsed.rows.slice(0, 8).map((row, i) => (
                   <tr key={i} className="hover:bg-slate-50">
-                    <td className="px-3 py-2 border border-slate-100 text-slate-700 max-w-[200px] truncate">{row.name}</td>
+                    <td className="px-3 py-2 border border-slate-100 text-slate-700 max-w-[180px] truncate">{row.name}</td>
+                    <td className="px-3 py-2 border border-slate-100 font-mono text-slate-400">{row.sku ?? '—'}</td>
                     <td className="px-3 py-2 border border-slate-100 text-slate-500">{row.category}</td>
                     <td className="px-3 py-2 border border-slate-100 text-slate-700 text-right font-medium">
                       ${row.price.toLocaleString('es-AR')}
@@ -375,27 +432,29 @@ export default function ImportarProductosPage() {
       )}
 
       {/* Result */}
-      {status?.type === 'success' && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-4 flex items-center gap-3">
-          <svg className="text-emerald-500 shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      {result && !result.error && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl px-5 py-4 flex items-start gap-3">
+          <svg className="text-emerald-500 shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
             <polyline points="22 4 12 14.01 9 11.01"/>
           </svg>
           <div>
-            <p className="text-sm font-semibold text-emerald-700">
-              {status.inserted} producto{status.inserted > 1 ? 's' : ''} importado{status.inserted > 1 ? 's' : ''} correctamente
-            </p>
-            <Link href="/admin" className="text-xs text-emerald-600 hover:underline">
+            <p className="text-sm font-semibold text-emerald-700">Importación completada</p>
+            <ul className="text-xs text-emerald-600 mt-0.5 space-y-0.5">
+              {result.inserted > 0 && <li>{result.inserted} producto{result.inserted > 1 ? 's' : ''} nuevo{result.inserted > 1 ? 's' : ''} creado{result.inserted > 1 ? 's' : ''}</li>}
+              {result.upserted > 0 && <li>{result.upserted} producto{result.upserted > 1 ? 's' : ''} actualizado{result.upserted > 1 ? 's' : ''} (por SKU)</li>}
+            </ul>
+            <Link href="/admin" className="text-xs text-emerald-600 hover:underline mt-1 inline-block">
               Ver catálogo →
             </Link>
           </div>
         </div>
       )}
 
-      {status?.type === 'error' && (
+      {result?.error && (
         <div className="bg-red-50 border border-red-200 rounded-2xl px-5 py-4">
           <p className="text-sm font-semibold text-red-700">Error al importar</p>
-          <p className="text-xs text-red-600 mt-0.5">{status.message}</p>
+          <p className="text-xs text-red-600 mt-0.5">{result.error}</p>
         </div>
       )}
     </div>

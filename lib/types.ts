@@ -17,6 +17,7 @@ export function normalizeVariant(v: unknown): ProductVariant {
 
 export interface Product {
   id: string
+  sku: string | null
   name: string
   category: string
   categories: string[]
