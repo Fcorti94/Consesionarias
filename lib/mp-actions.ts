@@ -1,7 +1,7 @@
 'use server'
 
 import { MercadoPagoConfig, Preference } from 'mercadopago'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export interface MPItem {
   id: string
@@ -81,7 +81,7 @@ export async function startCheckout(items: MPItem[], payer: MPPayer) {
   const total = items.reduce((s, i) => s + Math.round(i.unit_price) * i.quantity, 0)
 
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     await supabase.from('orders').insert({
       mp_preference_id: preference_id,
       status: 'pending',

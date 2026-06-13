@@ -1,8 +1,24 @@
 import Link from 'next/link'
 import HeaderWrapper from '@/components/HeaderWrapper'
 import CheckoutSuccessClear from './CheckoutSuccessClear'
+import { processPayment } from '@/lib/process-payment'
 
-export default function CheckoutSuccessPage() {
+export default async function CheckoutSuccessPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ payment_id?: string; status?: string }>
+}) {
+  const params    = await searchParams
+  const paymentId = params.payment_id
+
+  if (paymentId) {
+    try {
+      await processPayment(paymentId)
+    } catch (err) {
+      console.error('[CheckoutSuccess] processPayment failed:', err)
+    }
+  }
+
   return (
     <>
       <HeaderWrapper />
