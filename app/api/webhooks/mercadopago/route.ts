@@ -44,14 +44,14 @@ export async function POST(req: NextRequest) {
     // Look up existing order by payment ID first, then by preference ID (pre-inserted at checkout)
     let { data: existing } = await supabase
       .from('orders')
-      .select('id, buyer_email')
+      .select('id, buyer_email, status')
       .eq('mp_payment_id', paymentId)
       .maybeSingle()
 
     if (!existing && preferenceId) {
       const { data } = await supabase
         .from('orders')
-        .select('id, buyer_email')
+        .select('id, buyer_email, status')
         .eq('mp_preference_id', preferenceId)
         .maybeSingle()
       existing = data
@@ -87,7 +87,9 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    if (status === 'approved' && !existing) {
+    const wasAlreadyApproved = existing?.status === 'approved'
+
+    if (status === 'approved' && !wasAlreadyApproved) {
       try {
         const config = await getSiteConfig()
         const ses = buildSesClient()
