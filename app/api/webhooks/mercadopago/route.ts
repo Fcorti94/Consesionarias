@@ -88,31 +88,34 @@ export async function POST(req: NextRequest) {
     }
 
     if (status === 'approved' && !existing) {
-      const config = await getSiteConfig()
-      const ses = buildSesClient()
-      if (ses) {
-        const emailData = {
-          paymentId, buyerName, buyerSurname, buyerEmail,
-          items, total, paymentMethod, installments,
+      try {
+        const config = await getSiteConfig()
+        const ses = buildSesClient()
+        if (ses) {
+          const emailData = {
+            paymentId, buyerName, buyerSurname, buyerEmail,
+            items, total, paymentMethod, installments,
+          }
+          if (config.email) {
+            await sendEmail(ses, {
+              from:    buildFromAddress(config.brand_name),
+              to:      config.email,
+              subject: buildStoreSubject(total, buyerName, buyerSurname),
+              html:    buildStoreHtml(emailData, config),
+            })
+          }
+          if (confirmedBuyerEmail) {
+            await sendEmail(ses, {
+              from:    buildFromAddress(config.brand_name),
+              to:      confirmedBuyerEmail,
+              subject: `Tu pedido en ${config.brand_name} fue confirmado`,
+              html:    buildBuyerHtml({ ...emailData, buyerEmail: confirmedBuyerEmail }, config),
+            })
+          }
         }
-        // Email a la tienda
-        if (config.email) {
-          await sendEmail(ses, {
-            from:    buildFromAddress(config.brand_name),
-            to:      config.email,
-            subject: buildStoreSubject(total, buyerName, buyerSurname),
-            html:    buildStoreHtml(emailData, config),
-          })
-        }
-        // Email al comprador — usar el email del formulario de checkout
-        if (confirmedBuyerEmail) {
-          await sendEmail(ses, {
-            from:    buildFromAddress(config.brand_name),
-            to:      confirmedBuyerEmail,
-            subject: `Tu pedido en ${config.brand_name} fue confirmado`,
-            html:    buildBuyerHtml({ ...emailData, buyerEmail: confirmedBuyerEmail }, config),
-          })
-        }
+      } catch (emailErr) {
+        // Email failure must not block order processing
+        console.error('[Webhook MP] SES error:', emailErr)
       }
     }
 
