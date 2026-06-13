@@ -1,6 +1,7 @@
 'use server'
 
 import { MercadoPagoConfig, Preference } from 'mercadopago'
+import { createClient } from '@/lib/supabase/server'
 
 export interface MPItem {
   id: string
@@ -54,7 +55,7 @@ export async function createMPPreference(items: MPItem[], payer: MPPayer) {
     })
 
     if (!result.init_point) throw new Error('No se pudo crear la preferencia de pago')
-    return { init_point: result.init_point }
+    return { init_point: result.init_point, preference_id: String(result.id ?? '') }
 
   } catch (err: unknown) {
     // Log full error server-side for debugging
@@ -72,4 +73,29 @@ export async function createMPPreference(items: MPItem[], payer: MPPayer) {
     }
     throw new Error('No se pudo conectar con Mercado Pago. Revisá las credenciales.')
   }
+}
+
+export async function startCheckout(items: MPItem[], payer: MPPayer) {
+  const { init_point, preference_id } = await createMPPreference(items, payer)
+
+  const total = items.reduce((s, i) => s + Math.round(i.unit_price) * i.quantity, 0)
+
+  try {
+    const supabase = await createClient()
+    await supabase.from('orders').insert({
+      mp_preference_id: preference_id,
+      status: 'pending',
+      buyer_name:    payer.name    || null,
+      buyer_surname: payer.surname || null,
+      buyer_email:   payer.email   || null,
+      buyer_phone:   payer.phone   || null,
+      items: items.map(i => ({ id: i.id, title: i.title, quantity: i.quantity, unit_price: i.unit_price })),
+      total,
+    })
+  } catch (err) {
+    // Non-fatal: log and continue — buyer can still pay
+    console.error('[startCheckout] DB insert failed', err)
+  }
+
+  return { init_point }
 }

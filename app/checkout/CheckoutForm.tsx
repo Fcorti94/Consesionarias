@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCart } from '@/components/CartContext'
-import { createMPPreference } from '@/lib/mp-actions'
+import { startCheckout } from '@/lib/mp-actions'
 
 export default function CheckoutForm() {
   const { items, total } = useCart()
@@ -44,7 +44,7 @@ export default function CheckoutForm() {
           unit_price: i.price,
           image_url: i.image_url ?? undefined,
         }))
-        const { init_point } = await createMPPreference(mpItems, form)
+        const { init_point } = await startCheckout(mpItems, form)
         window.location.href = init_point
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al procesar el pago. Intentá de nuevo.')
@@ -119,6 +119,7 @@ export default function CheckoutForm() {
                   placeholder="juan@email.com"
                   className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus-primary"
                 />
+                <p className="text-xs text-slate-400 mt-1">Te enviaremos la confirmación de compra a este email.</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono</label>
